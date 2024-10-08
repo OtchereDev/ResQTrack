@@ -1,0 +1,22 @@
+
+import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
+import 'package:resq_track/AppTheme/app_config.dart';
+import 'package:resq_track/Utils/utils.dart';
+
+class LoadingPage extends StatelessWidget {
+  const LoadingPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return  Container(
+      height: Utils.screenHeight(context),
+      width: Utils.screenWidth(context),
+      color: AppColors.WHITE,
+      child: Center(child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: LottieBuilder.asset('assets/images/loader.json'),
+      )),
+    );
+  }
+}
