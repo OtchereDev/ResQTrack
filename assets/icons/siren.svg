@@ -1,0 +1,12 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blinking light animation -->
+  <path d="M10 17.1538C10 13.7551 12.6862 11 16 11C19.3138 11 22 13.7551 22 17.1538V27H10V17.1538Z"
+        fill="#DD2E44" stroke="#DD2E44" stroke-width="3" stroke-linejoin="round">
+    <!-- This animates the fill color from red to transparent every 0.5 seconds -->
+    <!-- <animate attributeName="fill" values="#DD2E44;transparent;#DD2E44" dur="1s" repeatCount="indefinite" /> -->
+  </path>
+
+  <!-- Rest of the SVG paths -->
+  <path d="M15.9995 4.3335V6.3335M23.9275 7.21883L22.6415 8.75083M28.1455 14.5248L26.1755 14.8722M3.85352 14.5248L5.82352 14.8722M8.07218 7.21883L9.35752 8.75083M3.99952 28.3335H28.6662"
+        stroke="#DD2E44" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:resq_track/Model/Response/user_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefManager {
@@ -18,15 +21,23 @@ class SharedPrefManager {
     return pref.getString(baseCurrency) ?? "";
   }
 
-  // Future<User?> getUser() async {
-  //   SharedPreferences preferences = await SharedPreferences.getInstance();
-  //   var user = preferences.getString('user');
-  //   if (user == null) {
-  //     return null;
-  //   }
-  //   return User.fromJson(jsonDecode(user));
-  // }
+  Future<User?> getUser() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var user = preferences.getString('user');
+    if (user == null) {
+      return null;
+    }
+    return User.fromJson(jsonDecode(user));
+  }
 
+Future<User?> getEmergency() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var user = preferences.getString('emergency');
+    if (user == null) {
+      return null;
+    }
+    return User.fromJson(jsonDecode(user));
+  }
   Future<String> getAuthToken() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     String? newToken;
@@ -102,10 +113,15 @@ class SharedPrefManager {
     return preferences.setBool("show_tutorials_flag", value);
   }
 
-  // setUser(User user) async {
-  //   SharedPreferences preferences = await SharedPreferences.getInstance();
-  //   preferences.setString('user', jsonEncode(user.toJson()));
-  // }
+  setUser(User user) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString('user', jsonEncode(user.toJson()));
+  }
+
+   setEmergency(User user) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString('emergency', jsonEncode(user.toJson()));
+  }
 
   Future<void> logout() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();

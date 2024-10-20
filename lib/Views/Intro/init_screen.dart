@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
+import 'package:resq_track/Views/GetStarted/get_started.dart';
+import 'package:resq_track/Views/Home/index.dart';
 import '../../Core/Helpers/navigation_helper.dart';
 import '../../Utils/connection_util.dart';
 import 'splash_screen.dart';
@@ -61,9 +63,7 @@ class _InitScreenState extends State<InitScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
-                // AppNavigationHelper.navigateToWidget(
-                //     context, CreateOfflineUser());
-                // ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+               
               },
             ),
           ],
@@ -100,39 +100,32 @@ class _InitScreenState extends State<InitScreen> {
   }
 
   _checkAuthState() async {
-
     bool isAuthenticated = await SharedPrefManager().isAuthenticated();
     bool getStarted = await SharedPrefManager().getGetstarted();
-    bool isPatient = await SharedPrefManager().getUserType();
     // String? token = await SharedPrefsManager().getPushNotificationToken();
     // print(token);
     if (isAuthenticated) {
-    
-     
-        // Future.delayed(const Duration(seconds: 3), () {
-        //   return AppNavigationHelper.setRootOldWidget(
-        //       context, const BaseHomePage());
-        // });
-
-      // }
+      Future.delayed(const Duration(seconds: 3), () {
+        return AppNavigationHelper.setRootOldWidget(
+            context, const BaseHomePage());
+      });
     } else {
       if (getStarted) {
         Future.delayed(
           const Duration(seconds: 2),
           () {
-            // return AppNavigationHelper.navigateAndReplaceWidget(
-            //     context, GetStarted());
+            return AppNavigationHelper.navigateAndReplaceWidget(
+                context, GetStartedPage());
           },
         );
       } else {
         Future.delayed(
           const Duration(seconds: 1),
           () {
-            // return AppNavigationHelper.navigateAndReplaceWidget(
-            //     context, NewOnboardPage());
+            return AppNavigationHelper.navigateAndReplaceWidget(
+                context, GetStartedPage());
           },
         );
-//
       }
     }
   }

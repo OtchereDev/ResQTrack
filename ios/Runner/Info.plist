@@ -45,5 +45,20 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+		<key>NSLocationWhenInUseUsageDescription</key>
+<string>We need access to your location to provide better services based on your location.</string>
+
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Your location is required to track and provide location-based services at all times, even when the app is in the background.</string>
+<key>io.flutter.experimental.engines.allow_legacy_skia</key>
+<true/>
+
+<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need Photos access to allow you to update Profile Picture.</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>We need Camera access to allow you to upload ID Card.</string>
+
+
 </dict>
 </plist>

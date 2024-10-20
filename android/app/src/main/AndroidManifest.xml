@@ -3,6 +3,8 @@
         android:label="resq_track"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyDAkLoOaKCdB6gn_C4CRJ8G9jKJu5X9foQ"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

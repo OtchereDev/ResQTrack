@@ -10,9 +10,14 @@ class Utils {
   static double screenHeight(context) => MediaQuery.of(context).size.height;
 
   static Future<String> convertImageToBase64(String imageAsset) async {
+    // Load image as byte data
     ByteData bytes = await rootBundle.load(imageAsset);
-    var buffer = bytes.buffer;
-    return base64.encode(Uint8List.view(buffer));
+    // Convert ByteData to Uint8List
+    Uint8List imageBytes = bytes.buffer.asUint8List();
+    // Encode to Base64
+    String base64String = base64.encode(imageBytes);
+    // Return Base64 with data URI prefix (adjust MIME type based on your image)
+    return 'data:image/png;base64,$base64String'; // Assuming the image is PNG
   }
 
   bool keyboardIsVisible(context) {
@@ -41,7 +46,7 @@ class Utils {
     return bearing;
   }
 
-   static ScreenSize screenSize(BuildContext context) {
+  static ScreenSize screenSize(BuildContext context) {
     return screenHeight(context) <= 500
         ? ScreenSize.small
         : screenHeight(context) > 500 && screenHeight(context) <= 786
