@@ -5,6 +5,7 @@ class UserRequest {
     String? email;
     String? phoneNumber;
     String? password;
+    String? type;
     EmergencyContact?  emergencyContact;
 
     UserRequest({
@@ -13,6 +14,7 @@ class UserRequest {
         this.phoneNumber,
         this.password,
         this.emergencyContact,
+        this.type
     });
 
     factory UserRequest.fromJson(Map<String, dynamic> json) => UserRequest(
@@ -20,6 +22,7 @@ class UserRequest {
         email: json["email"],
         phoneNumber: json["phoneNumber"],
         password: json["password"],
+        type: json['type'],
         emergencyContact: EmergencyContact.fromJson(json["emergencyContact"]),
     );
 
@@ -28,6 +31,7 @@ class UserRequest {
         "email": email,
         "phoneNumber": phoneNumber,
         "password": password,
+        "type":type,
         "emergencyContact": emergencyContact?.toJson(),
     };
 }

@@ -91,7 +91,7 @@ class EmergencyEmergency {
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
 
-        userDetails: UserDetails.fromJson(json["userDetails"]),
+        userDetails:json["userDetails"] != null ? UserDetails.fromJson(json["userDetails"]): null,
     );
 
     Map<String, dynamic> toJson() => {
@@ -111,24 +111,33 @@ class EmergencyEmergency {
 }
 
 class Location {
-    double latitude;
-    double longitude;
+    double? latitude;
+    double? longitude;
+    String? type;
+    List<double>? coordinates;
 
     Location({
-        required this.latitude,
-        required this.longitude,
+        this.latitude,
+        this.longitude,
+        this.type,
+        this.coordinates,
     });
 
     factory Location.fromJson(Map<String, dynamic> json) => Location(
         latitude: json["latitude"]?.toDouble(),
         longitude: json["longitude"]?.toDouble(),
+        type: json["type"],
+        coordinates: json["coordinates"] == null ? [] : List<double>.from(json["coordinates"]!.map((x) => x?.toDouble())),
     );
 
     Map<String, dynamic> toJson() => {
         "latitude": latitude,
         "longitude": longitude,
+        "type": type,
+        "coordinates": coordinates == null ? [] : List<dynamic>.from(coordinates!.map((x) => x)),
     };
 }
+
 
 class UserDetails {
     String id;

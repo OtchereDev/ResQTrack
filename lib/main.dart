@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 // import 'package:firebase_core/firebase_core.dart';
 
@@ -8,19 +10,32 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resq_track/Provider/Auth/login_provider.dart';
 import 'package:resq_track/Provider/Auth/verification_countdown_provider.dart';
+import 'package:resq_track/Provider/Call/call_provider.dart';
+import 'package:resq_track/Provider/Chat/chat_provider.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
+import 'package:resq_track/Provider/Map/map_provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
+import 'package:resq_track/Provider/Responder/responder_provider.dart';
+import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Provider/Util/util_provider.dart';
-import 'package:resq_track/Services/fcm/firebase_notification_handler.dart';
+import 'package:resq_track/Services/fcm/notification.dart';
 import 'package:resq_track/Views/Intro/init_screen.dart';
+import 'package:resq_track/firebase_options.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Firebase.initializeApp(name: "ResQTrack");
+  await Firebase.initializeApp(
+    name: "ResQTrack",
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-    //Handle FCM background
-  // FirebaseMessaging.onBackgroundMessage(_backgroundHandler);
+  
+  //Handle FCM background
+  FirebaseMessaging.onBackgroundMessage(_backgroundHandler);
+
+  
+
 
   runApp(const MyApp());
 }
@@ -38,13 +53,29 @@ class MyApp extends StatelessWidget {
       child: MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => AuthProvider()),
-            ChangeNotifierProvider(create: (_) => VerificationCountDownProvider()),
+            ChangeNotifierProvider(
+                create: (_) => VerificationCountDownProvider()),
             ChangeNotifierProvider(create: (_) => UtilPovider()),
             ChangeNotifierProvider(create: (_) => LocationProvider()),
             ChangeNotifierProvider(create: (_) => ReportProvider()),
+            ChangeNotifierProvider(create: (_) => MapProvider()..initializeMap(context)),
+            ChangeNotifierProvider(create: (_) => CallProvider()),
+            ChangeNotifierProvider(create: (_) => ChatProvider()),
+            ChangeNotifierProvider(create: (_) => ResponderProvider()),
             ChangeNotifierProvider(create: (_) => ProfileProvider(context)),
+            ChangeNotifierProvider(
+              create: (_)  {
+                //  PushNotificationService().setupInteractedMessage(context);
+               return  SetupProvider()
+                ..listenToInComingCalls("")
+                ..getUsersRealTime()
+                ..getCallHistoryRealTime()
+                ..updateFcmToken();
+              }
+            ),
           ],
           builder: (context, widget) {
+             PushNotificationService().setupInteractedMessage(context);
             return MaterialApp(
               title: 'Flutter Demo',
               navigatorObservers: [BotToastNavigatorObserver()],
@@ -62,14 +93,16 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> _backgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+    debugPrint("-------------------$message-----------------");
+
 
   if (message.data['type'] == 'call') {
-    // Map<String, dynamic> bodyMap = jsonDecode(message.data['body']);
+    Map<String, dynamic> bodyMap = jsonDecode(message.data['body']);
+    debugPrint("-------------------$bodyMap-----------------");
     // await CacheHelper.saveData(
     //     key: 'terminateIncomingCallData', value: jsonEncode(bodyMap));
   }
-  FirebaseNotifications.showNotification(
+  PushNotificationService.showNotification(
       title: message.data['title'],
       body: message.data['body'],
       type: message.data['type']);

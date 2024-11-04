@@ -12,7 +12,7 @@ class AuthRemoteService with AuthBaseRepository implements AuthRepository {
   // SharedPrefsManager _manager = new SharedPrefsManager();
 
   @override
-  Future<Map<String, String>> setHeaders() async {
+  Future<Map<String, String>> setHeaders({bool? isFcm = false}) async {
     token = await SharedPrefManager().getAuthToken();
     return {
       'Content-type': 'application/json',
@@ -37,11 +37,11 @@ class AuthRemoteService with AuthBaseRepository implements AuthRepository {
   }
 
   @override
-  Future<dynamic> signin(context, data) async {
+  Future<dynamic> signin(context, data,bool isResponder) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
     await post(
       context,
-      url: "$kBaseUrl/auth/login",
+      url: "$kBaseUrl/auth/${isResponder ? 'login-responder':'login'}",
       data: jsonEncode(data),
     ).then((response) {
       if (response != null) {
@@ -60,7 +60,7 @@ class AuthRemoteService with AuthBaseRepository implements AuthRepository {
   }
 
   @override
-  Future<dynamic> signup(context, data) async {
+  Future<dynamic> signup(context, data, isResponder) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
     await post(
       context,

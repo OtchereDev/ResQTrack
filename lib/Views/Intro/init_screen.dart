@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:resq_track/Provider/Setup/setup_provider.dart';
+import 'package:resq_track/Responder/Home/responder_homee_page.dart';
+import 'package:resq_track/Responder/Home/responder_index_page.dart';
 import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
+import 'package:resq_track/Utils/utils.dart';
 import 'package:resq_track/Views/GetStarted/get_started.dart';
 import 'package:resq_track/Views/Home/index.dart';
 import '../../Core/Helpers/navigation_helper.dart';
@@ -62,9 +67,7 @@ class _InitScreenState extends State<InitScreen> {
                 '',
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: () {
-               
-              },
+              onPressed: () {},
             ),
           ],
         ),
@@ -102,13 +105,25 @@ class _InitScreenState extends State<InitScreen> {
   _checkAuthState() async {
     bool isAuthenticated = await SharedPrefManager().isAuthenticated();
     bool getStarted = await SharedPrefManager().getGetstarted();
-    // String? token = await SharedPrefsManager().getPushNotificationToken();
-    // print(token);
+    bool isResponder = await SharedPrefManager().getUserType();
+    String? token = await SharedPrefManager().getPushNotificationToken();
+    // Provider.of<SetupProvider>(context, listen: false).initFcm(context);
+
+    await Utils.handlePermissions();
+
+    print("--------------$token");
     if (isAuthenticated) {
-      Future.delayed(const Duration(seconds: 3), () {
-        return AppNavigationHelper.setRootOldWidget(
-            context, const BaseHomePage());
-      });
+      if (isResponder) {
+        Future.delayed(const Duration(seconds: 3), () {
+          return AppNavigationHelper.setRootOldWidget(
+              context, const ResponderBaseHomePage());
+        });
+      } else {
+        Future.delayed(const Duration(seconds: 3), () {
+          return AppNavigationHelper.setRootOldWidget(
+              context, const BaseHomePage());
+        });
+      }
     } else {
       if (getStarted) {
         Future.delayed(

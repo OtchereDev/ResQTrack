@@ -3,8 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class BlinkingSvg extends StatefulWidget {
   final bool forLogin;
+  final bool isBig;
 
-  const BlinkingSvg({super.key, required this.forLogin});
+  const BlinkingSvg({super.key, required this.forLogin, this.isBig = false});
   @override
   _BlinkingSvgState createState() => _BlinkingSvgState();
 }
@@ -36,7 +37,11 @@ class _BlinkingSvgState extends State<BlinkingSvg>
         return Opacity(
             opacity: _controller.value, // This controls the blinking
             child: SvgPicture.asset(
-            widget. forLogin? 'assets/icons/alarm.svg' :  'assets/icons/siren.svg',
+              height: widget.isBig ? 100 : null,
+              width: widget.isBig ? 100 : null,
+              widget.forLogin
+                  ? 'assets/icons/alarm.svg'
+                  : 'assets/icons/siren.svg',
             ));
       },
     );

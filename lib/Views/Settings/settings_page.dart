@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,8 +12,8 @@ import 'package:resq_track/Views/Settings/Accesibility/policy_page.dart';
 import 'package:resq_track/Views/Settings/Language/language_page.dart';
 import 'package:resq_track/Views/Settings/Policy/policy_page.dart';
 
-class SettingaPage extends StatelessWidget {
-  const SettingaPage({super.key});
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class SettingaPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
+                    padding:  EdgeInsets.only(left: 20.0, top:Platform.isIOS ? 0: 20, right: 20),
                     child: Text(
                       "Settings",
                       style: GoogleFonts.annapurnaSil(

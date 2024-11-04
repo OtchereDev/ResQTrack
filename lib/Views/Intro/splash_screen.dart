@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
+import 'package:resq_track/Widgets/animate_icon.dart';
 class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -15,9 +16,14 @@ class SplashScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Image.asset(logo, width: 100, ),
-                // AppSpaces.height8,
-                const Text("...in good hands", style: TextStyle(color: AppColors.SECONDARY_COLOR, fontSize: 16, fontWeight: FontWeight.w600),)
+                Spacer(),
+               BlinkingSvg(forLogin: true,isBig: true,),
+                Text("ResQ Track", style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),),
+             
+             Spacer(),
+                Text("Stay Safe, Stay Connected..."),
+                AppSpaces.height20,
+                
               ],
             ),
           ),

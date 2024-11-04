@@ -1,4 +1,4 @@
-package com.example.resq_track
+package com.hackthon.resqTrack
 
 import io.flutter.embedding.android.FlutterActivity
 

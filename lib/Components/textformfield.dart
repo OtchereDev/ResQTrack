@@ -22,10 +22,11 @@ class TextFormWidget extends StatefulWidget {
       this.count,
       this.onValueChange,
       this.padding = const EdgeInsets.symmetric(horizontal: 12,),
-      this.onTap, this.line, this.onEditComplete});
+      this.onTap, this.line, this.onEditComplete, this.focusNode});
   TextEditingController textController = TextEditingController();
   final String? title, hint;
   final String? validateMsg;
+  final FocusNode? focusNode;
   bool enabled, validateEmail, isPhone;
   bool validate;
   final void Function()? onIconTap;
@@ -74,6 +75,8 @@ class _TextFormWidgetState extends State<TextFormWidget> {
           inputFormatters: widget.formater,
           readOnly: widget.enabled,
           maxLines: widget.line,
+          canRequestFocus: true,
+          
           validator: (value) {
             RegExp regex = RegExp(PATTERN);
             if (widget.validateEmail && !regex.hasMatch(value!)) {
@@ -84,12 +87,13 @@ class _TextFormWidgetState extends State<TextFormWidget> {
             }
             return null;
           },
-          focusNode: null,
+          focusNode: widget.focusNode,
           decoration: InputDecoration(
               hintText: widget.hint,
               alignLabelWithHint: true,
               hintStyle:  GoogleFonts.raleway(color: const Color(0xff4D5061)),
               filled: true,
+              
               prefixIcon: widget.prefixIcon,
               suffixIcon: widget.icon == null
                   ? null

@@ -4,6 +4,7 @@ class EmergencyRequest {
     String? emergencyType;
     String? severity;
     String? description;
+    String? locationName;
     List<String>? photos;
 
     EmergencyRequest({
@@ -12,6 +13,7 @@ class EmergencyRequest {
          this.severity,
          this.description,
          this.photos,
+         this.locationName
     });
 
     factory EmergencyRequest.fromJson(Map<String, dynamic> json) => EmergencyRequest(
@@ -19,6 +21,7 @@ class EmergencyRequest {
         emergencyType: json["emergencyType"],
         severity: json["severity"],
         description: json["description"],
+        locationName: json['locationName'],
         photos:json["photos"] != null ? List<String>.from(json["photos"].map((x) => x)): null,
     );
 
@@ -28,5 +31,6 @@ class EmergencyRequest {
         "severity": severity,
         "description": description,
         "photos":photos != null? List<dynamic>.from(photos!.map((x) => x)): null,
+        "locationName":locationName
     };
 }

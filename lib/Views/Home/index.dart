@@ -6,7 +6,6 @@ import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Views/Account/account_page.dart';
-import 'package:resq_track/Views/Home/Emergency/ActiveEmergency/active_emergency_page.dart';
 import 'package:resq_track/Views/Home/Sos/sos_page.dart';
 import 'package:resq_track/Views/Home/RecentPage/recents.dart';
 import 'package:resq_track/Views/MapViews/map_home.dart';
@@ -43,10 +42,10 @@ class _BaseHomePageState extends State<BaseHomePage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> _widgetOptions = <Widget>[
-      MapHomePage(),//const ActiveEmergencyPage(), //
+      const MapHomePage(),//const ActiveEmergencyPage(), //
        RecentPage(),
       const AccountPage(),
-      const SettingaPage(),
+      const SettingsPage(),
     ];
     return Scaffold(
       body: Center(child: _widgetOptions.elementAt(_selectedIndex)),

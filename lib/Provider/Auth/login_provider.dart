@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:resq_track/Components/alert_dailog.dart';
+import 'package:resq_track/Model/Request/emergency_firebase_body.dart';
 import 'package:resq_track/Model/Request/user_request.dart';
 import 'package:resq_track/Model/Response/user_response.dart';
+import 'package:resq_track/Services/Firbase/auth_api.dart';
 import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
 import 'package:resq_track/Services/Remote/Authentication/auth_remote_service.dart';
 import 'package:resq_track/Utils/Dialogs/notifications.dart';
@@ -18,12 +20,15 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> signUp(context, UserRequest user) async {
+    bool? isResponder = await SharedPrefManager().getUserType();
+
     setLoadingPage(true);
     bool isSuccess = false;
     await authService
         .signup(
       context,
       user.toJson(),
+      isResponder
     )
         .then((value) {
       setLoadingPage(false);
@@ -41,23 +46,37 @@ class AuthProvider extends ChangeNotifier {
     return isSuccess;
   }
 
-  Future<bool?> performLogin(context,
+  Future<Map<String, dynamic>> performLogin(context,
       {required String email, required String password}) async {
     setLoadingPage(true);
-    // String? token = await SharedPrefManager().getPushNotificationToken();
-    bool? actionSuccessful = false;
+
+    String? token = await SharedPrefManager().getPushNotificationToken();
+   bool  isResponder = await SharedPrefManager().getUserType()    ;
+     Map<String, dynamic>? actionSuccessful = {"status":false, "userID":""};
     Map<String, dynamic> data = {
       "email": email,
       "password": password,
     };
-    await authService.signin(context, data).then((response) async {
+    await authService.signin(context, data,isResponder ).then((response) async {
       setLoadingPage(false);
       if (response['status'] == true) {
+        var user = User.fromJson(response['data']['user']);
         await _sharedPrefsManager
             .setAuthToken(response['data']['access_token']);
-            await _sharedPrefsManager.setUser(User.fromJson(response['data']['user']));
-            await _sharedPrefsManager.setEmergency(User.fromJson(response['data']['emergency_contact']));
-        actionSuccessful = true;
+        await _sharedPrefsManager.setUser(user);
+        if (!isResponder) {
+          await _sharedPrefsManager.setEmergency(
+              User.fromJson(response['data']['emergency_contact']));
+        }
+        AuthApi().createUser(
+            user: UserFirebaseRequest(
+                fcmToken: token ?? "",
+                userId: user.id ?? "",
+                name: user.name ?? "",
+                userType:isResponder ? "Responder": "Normal"));
+
+        actionSuccessful['status'] = true;
+        actionSuccessful['userID'] = user.id;
       } else {
         alertDialog(
             title: 'Login failed',
@@ -107,10 +126,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> verifyOtp(context,
       {required String phone, required String code}) async {
     bool actionSuccessful = false;
-    Map<String, dynamic> data = {
-      "email": phone,
-      "otp": code
-    };
+    Map<String, dynamic> data = {"email": phone, "otp": code};
     setLoadingPage(true);
 
     await authService.verifyOtp(context, data).then((response) async {

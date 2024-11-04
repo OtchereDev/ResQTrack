@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,7 +8,6 @@ import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Components/search_text.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
-import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Utils/formatters.dart';
@@ -41,7 +42,7 @@ class _RecentPageState extends State<RecentPage> {
         return Consumer<ReportProvider>(builder: (context, report, _) {
           return report.isLoading ? LoadingPage(): SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+  padding:  EdgeInsets.only(left: 20.0, top:Platform.isIOS ? 0: 20, right: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -87,41 +88,47 @@ class _RecentPageState extends State<RecentPage> {
                     ],
                   ),
                   AppSpaces.height20,
-                  ...List.generate(report.emergencyRes.emergencies?.length ?? 0,
-                      (index) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Expanded(child: SingleChildScrollView(
+                    child: Column(
                       children: [
-                        Text(
-                          Formatters.humanReadableDate(
-                              report.emergencyRes.emergencies?[index].id ??
-                                  DateTime.now()),
-                          style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.BLACK),
-                        ),
-                        AppSpaces.height16,
-                        ...List.generate(
-                            report.emergencyRes.emergencies?[index].emergencies
-                                    ?.length ??
-                                0, (inx) {
-                          var data = report
-                              .emergencyRes.emergencies?[index].emergencies;
-                          return ReportTile(
-                            description: data?[inx].description ?? "",
-                            title: "${Formatters.capitalizeEachWord(data?[inx].emergencyType??"")} Emergency",
-                            isSuccess: data?[inx].status == "RESOLVED",
-                            emergencyType: data?[inx].emergencyType ?? "",
-                            onTap: () {
-                              AppNavigationHelper.navigateToWidget(
-                                  context,  ReportDetails(emergency: data![inx],));
-                            },
-                          );
-                        })
+                        ...List.generate(report.emergencyRes.emergencies?.length ?? 0,
+                        (index) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            Formatters.humanReadableDate(
+                                report.emergencyRes.emergencies?[index].id ??
+                                    DateTime.now()),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.BLACK),
+                          ),
+                          AppSpaces.height16,
+                          ...List.generate(
+                              report.emergencyRes.emergencies?[index].emergencies
+                                      ?.length ??
+                                  0, (inx) {
+                            var data = report
+                                .emergencyRes.emergencies?[index].emergencies;
+                            return ReportTile(
+                              description: data?[inx].description ?? "",
+                              title: "${Formatters.capitalizeEachWord(data?[inx].emergencyType??"")} Emergency",
+                              isSuccess: data?[inx].status == "RESOLVED",
+                              emergencyType: data?[inx].emergencyType ?? "",
+                              onTap: () {
+                                AppNavigationHelper.navigateToWidget(
+                                    context,  ReportDetails(emergency: data![inx],));
+                              },
+                            );
+                          })
+                        ],
+                      );
+                    })
                       ],
-                    );
-                  })
+                    ),
+                  ))
                 ],
               ),
             ),
@@ -211,9 +218,9 @@ class ReportTile extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
+                backgroundColor: const Color(0xffFFEDF1),
                 child: SvgPicture.asset(
                     'assets/icons/${emergencyType == "POLICE" ? "police2" : emergencyType == "AMBULANCE" ? "ambulance2" : "fire2"}.svg'),
-                backgroundColor: const Color(0xffFFEDF1),
               ),
               AppSpaces.width16,
               Expanded(
@@ -230,6 +237,8 @@ class ReportTile extends StatelessWidget {
                     AppSpaces.height8,
                     Text(
                       description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 12),
                     )
                   ],

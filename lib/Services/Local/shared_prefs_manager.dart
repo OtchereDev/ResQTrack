@@ -67,12 +67,12 @@ Future<User?> getEmergency() async {
 
     Future<bool> getUserType() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    return preferences.getBool('switch_account') ?? false;
+    return preferences.getBool('isResponder') ?? false;
   }
 
     setUserType(bool patient) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setBool('switch_account', patient);
+    preferences.setBool('isResponder', patient);
   }
 
   setFirstTimeUser(bool firstime) async {
@@ -123,8 +123,20 @@ Future<User?> getEmergency() async {
     preferences.setString('emergency', jsonEncode(user.toJson()));
   }
 
+  setActiveEmergency(String active) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString('activeEmergencyId',active );
+  }
+
+   Future<String> getActiveEmergency() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.getString("activeEmergencyId") ?? "";
+  }
+
+
   Future<void> logout() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.clear();
   }
+
 }

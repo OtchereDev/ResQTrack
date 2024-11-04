@@ -1,23 +1,27 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:resq_track/Core/Enums/enums.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 class Utils {
   static double screenWidth(context) => MediaQuery.of(context).size.width;
   static double screenHeight(context) => MediaQuery.of(context).size.height;
 
-  static Future<String> convertImageToBase64(String imageAsset) async {
-    // Load image as byte data
-    ByteData bytes = await rootBundle.load(imageAsset);
-    // Convert ByteData to Uint8List
-    Uint8List imageBytes = bytes.buffer.asUint8List();
-    // Encode to Base64
+  static Future<String> convertImageToBase64(String imagePath) async {
+    // Read the image file as bytes
+    File imageFile = File(imagePath);
+    Uint8List imageBytes = await imageFile.readAsBytes();
+
+    // Encode the bytes to Base64
     String base64String = base64.encode(imageBytes);
-    // Return Base64 with data URI prefix (adjust MIME type based on your image)
-    return 'data:image/png;base64,$base64String'; // Assuming the image is PNG
+
+    // Return Base64 with data URI prefix (adjust MIME type based on your image type)
+    return 'data:image/jpeg;base64,$base64String'; // Assuming it's a JPG, adjust for PNG if needed
   }
 
   bool keyboardIsVisible(context) {
@@ -60,23 +64,16 @@ class Utils {
     return (to.difference(from).inHours / 24).round();
   }
 
-  static String emergencyContactPolice(
-      {String? name, String? contact, String? location}) {
-    // return "My name is $name and my contact number is $contact. Our vehicle has been attacked by armed robbers at location $location. We need your immediate intervention.";
-    return "My%20name%20is%20$name,%20and%20my%20contact%20number%20is%20$contact.Our%20vehicle%20has%20been%20attacked%20by%20armed%20robbers%20at%20location%20at%20location%20$location.%20We%20need%20your%20immediate%20intervention.";
-  }
+static Future<bool> handlePermissions() async {
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.camera,
+    Permission.microphone,
+    Permission.notification,
+  ].request();
 
-  static String emergencyContactFireService(
-      {String? name, String? contact, String? location}) {
-    return "My%20name%20is%20$name,%20and%20my%20contact%20number%20is%20$contact.Our%20vehicle%20just%20caught%20fire%20at%20location%20at%20location%20$location.%20We%20need%20your%20immediate%20intervention.";
-
-    // return "My name is $name and my contact number is $contact. Our vehicle just caught fire at location $location. We need your immediate intervention.";
-  }
-
-  static String emergencyContactAmbulance(
-      {String? name, String? contact, String? location}) {
-    return "My%20name%20is%20$name,%20and%20my%20contact%20number%20is%20$contact.Our%20vehicle%20has%20been%20involved%20in%20an%20accident%20at%20location%20$location.%20We%20need%20your%20immediate%20intervention.";
-  }
+  return statuses[Permission.camera]!.isGranted &&
+         statuses[Permission.microphone]!.isGranted;
+}
 }
 
 

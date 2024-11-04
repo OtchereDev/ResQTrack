@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
+import 'package:resq_track/Responder/Auth/Login/login.dart';
+import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
 import 'package:resq_track/Views/Auth/Login/login.dart';
 import 'package:resq_track/Views/Auth/SignUp/signup.dart';
 import 'package:resq_track/Widgets/custom_buttom.dart';
@@ -93,6 +95,10 @@ class GetStartedPage extends StatelessWidget {
                   },
                 ),
                 AppSpaces.height40,
+                TextButton(onPressed: (){
+                  SharedPrefManager().setUserType(true);
+                  AppNavigationHelper.navigateToWidget(context, ResponderLoginPage());
+                }, child: Text("As Responder")),
                 AppSpaces.height40,
 
                 CustomButton(

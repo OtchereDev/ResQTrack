@@ -13,10 +13,10 @@ mixin AuthBaseRepository {
   String token = "N/A";
   // SharedPrefsManager _manager = new SharedPrefsManager();
 
-  Future<Map<String, String>> setHeaders() async {
+  Future<Map<String, String>> setHeaders({bool isFcm = false}) async {
     token = await SharedPrefManager().getAuthToken();
     return {
-      'Authorization': 'Bearer $token',
+      'Authorization': '${isFcm ? 'key=':'Bearer'} $token',
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     };
@@ -57,7 +57,7 @@ mixin AuthBaseRepository {
 
   Future<http.Response?> post(context,
       {required String url, dynamic data, bool json = false}) async {
-    Map<String, String> headers = await setHeaders();
+    Map<String, String> headers = await setHeaders(isFcm: json);
 
     String encodedData = data == null ? "{}" : jsonEncode(data);
     http.Response? response;

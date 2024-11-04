@@ -90,7 +90,7 @@ class LoginPage extends StatelessWidget {
                                 email: emailcontroller.text.trim(),
                                 password: passwordcontroller.text.trim())
                             .then((value) {
-                          if (value == true) {
+                          if (value['status'] == true) {
                             alertDialog(
                                 title: "Login successful",
                                 message: "You can now go to home",

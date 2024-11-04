@@ -13,7 +13,7 @@ class CallModel {
   String? status;
   num? createAt;
   bool? current;
-  User? otherUser; //UI
+
 
   CallModel(
       {required this.id,

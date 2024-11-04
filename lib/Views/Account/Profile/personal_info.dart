@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -41,7 +43,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       body: Consumer<ProfileProvider>(builder: (context, profile, _) {
           return SafeArea(
             child: profile.isLoading ? LoadingPage(): Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
+              padding:  EdgeInsets.only(left: 20.0, top:Platform.isIOS ? 0: 20, right: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

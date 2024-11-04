@@ -7,11 +7,13 @@ import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Components/textformfield.dart';
 import 'package:resq_track/Core/Extensions/extensions.dart';
+import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Model/Request/emergency_request_body.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
+import 'package:resq_track/Views/Home/index.dart';
 import 'package:resq_track/Views/MapViews/map_view.dart';
 import 'package:resq_track/Widgets/back_arrow_button.dart';
 import 'package:resq_track/Widgets/confirm_create_report.dart';
@@ -28,6 +30,7 @@ class SosPage extends StatelessWidget {
   final textController = TextEditingController();
 
   final scfKey = GlobalKey<ScaffoldState>();
+  var focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +40,10 @@ class SosPage extends StatelessWidget {
       body: SafeArea(
         child: Consumer<ReportProvider>(builder: (context, report, _) {
           return report.isLoading
-              ? LoadingPage()
+              ? const LoadingPage()
               : Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.only(
+                      left: 20, right: 20, top: Platform.isIOS ? 0 : 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -62,7 +66,7 @@ class SosPage extends StatelessWidget {
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10)),
-                                child: MapScreen(),
+                                child: const MapScreen(),
                               ),
                               AppSpaces.height20,
                               textHeader(
@@ -120,7 +124,7 @@ class SosPage extends StatelessWidget {
                                         ),
                                         Text(
                                           "Severity level: ${slide <= 0.4 ? "low" : slide <= 0.7 ? "medium" : "high"}",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 11,
                                               color: Color(0xff7C8293)),
                                         )
@@ -138,6 +142,7 @@ class SosPage extends StatelessWidget {
                                 false,
                                 line: 7,
                                 hint: 'Use keywords',
+                                focusNode: focusNode,
                               ),
                               AppSpaces.height20,
                               textHeader(
@@ -150,7 +155,7 @@ class SosPage extends StatelessWidget {
                                 },
                                 child: CircleAvatar(
                                   backgroundColor:
-                                      Color(0xff667085).withOpacity(0.2),
+                                      const Color(0xff667085).withOpacity(0.2),
                                   child: SvgPicture.asset(
                                       'assets/icons/camera.svg'),
                                 ),
@@ -190,71 +195,60 @@ class SosPage extends StatelessWidget {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomButton(
-              title: 'Report Incident',
-              onTap: () {
-                showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: ConfirmCreatDialog(
-                          onContinue: () async {
-                            var report = context.read<ReportProvider>();
+        child: context.watch<ReportProvider>().isLoading
+            ? const SizedBox.shrink()
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomButton(
+                    title: 'Report Incident',
+                    onTap: () async {
+                      focusNode.requestFocus();
+                      var report = context.read<ReportProvider>();
+                      List<String> urls = await report.uploadImage(context);
+                      if (urls.isNotEmpty) {
+                        var location =
+                            scfKey.currentContext!.read<LocationProvider>();
+                        EmergencyRequest _emer = EmergencyRequest();
 
-                            // First, handle the image upload
-                            List<String> urls =
-                                await report.uploadImage(context);
+                        _emer.description = textController.text;
+                        _emer.emergencyType =
+                            emergencyTypeList[emergencyType.value]['key']
+                                .toString()
+                                .toUpperCase();
+                        _emer.severity = sliderValue.value <= 0.4
+                            ? "LOW"
+                            : sliderValue.value <= 0.7
+                                ? "MEDIUM"
+                                : "HIGH";
 
-                            // After the upload completes, check if there are any URLs
-                            if (urls.isNotEmpty) {
-                              var location = scfKey.currentContext!.read<LocationProvider>()
-                                  .currentPosition;
-                              EmergencyRequest _emer = EmergencyRequest();
-
-                              _emer.description = textController.text;
-                              _emer.emergencyType =
-                                  emergencyTypeList[emergencyType.value]['key']
-                                      .toString()
-                                      .toUpperCase();
-                              _emer.severity = sliderValue.value <= 0.4
-                                  ? "LOW"
-                                  : sliderValue.value <= 0.7
-                                      ? "MEDIUM"
-                                      : "HIGH";
-
-                              _emer.location =
-                                  "${location?.latitude ?? "0.5555"}, ${location?.longitude ?? "-0.76432"}";
-                              _emer.photos = urls;
-
-
-                              // Handle any other report-related operations
-                              report.createEmergency(context, _emer);
-                            }
-
-                            // Finally, close the modal bottom sheet after the logic is complete
-                            // Navigator.pop(context);
-                          },
-                        ),
-                      );
+                        _emer.location = "${location.currentPosition?.latitude},${location.currentPosition?.longitude}";
+                        _emer.photos = urls;
+                        _emer.locationName = location.locationMessage;
+                        report.createEmergency(context, _emer).then((val) {
+                          if (val == true) {
+                            AppNavigationHelper.setRootOldWidget(
+                                context, const BaseHomePage());
+                          }
+                        });
+                      }
                     },
-                    backgroundColor: Colors.transparent);
-              },
-            ),
-            AppSpaces.height16,
-            CustomOutlinedButton(title: 'Cancel')
-          ],
-        ),
+                  ),
+                  AppSpaces.height16,
+                  const CustomOutlinedButton(title: 'Cancel')
+                ],
+              ),
       ),
     );
   }
 }
 
 List<Map<String, dynamic>> emergencyTypeList = [
-  {"icon": "police2", "name": "Police", "key":"POLICE"},
-  {"icon": "ambulance2", "name": "Ambulance", "key":"AMBULANCE"},
-  {"icon": "fire2", "name": "Fire Rescue", "key":"FIRE"},
+  {"icon": "police2", "name": "Police", "key": "POLICE"},
+  {"icon": "ambulance2", "name": "Ambulance", "key": "AMBULANCE"},
+  {
+    "icon": "fire2",
+    "name": Platform.isIOS ? "Fire Rescue" : "Fire\nRescue",
+    "key": "FIRE"
+  },
 ];

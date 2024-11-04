@@ -30,6 +30,7 @@ class User {
     String? phoneNumber;
     String? email;
     String? user;
+    String? type;
     DateTime? createdAt;
     DateTime? updatedAt;
 
@@ -40,6 +41,7 @@ class User {
          this.email,
          this.user,
          this.createdAt,
+         this.type,
          this.updatedAt,
     });
 
@@ -49,6 +51,7 @@ class User {
         phoneNumber: json["phoneNumber"],
         email: json["email"],
         user: json["user"],
+        type: json['type']
         // createdAt: DateTime.parse(json["createdAt"]),
         // updatedAt: DateTime.parse(json["updatedAt"]),
     );
@@ -58,7 +61,8 @@ class User {
         "name": name,
         "phoneNumber": phoneNumber,
         "email": email,
-        "user":user
+        "user":user,
+        "type":type
         // "createdAt": createdAt?.toIso8601String(),
         // "updatedAt": updatedAt?.toIso8601String(),
     };

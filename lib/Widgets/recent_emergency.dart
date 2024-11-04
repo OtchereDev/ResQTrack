@@ -36,7 +36,7 @@ class RecentEmergencyContainer extends StatelessWidget {
               children: [
                   textHeader("Active shooter alert"),
                   AppSpaces.height8,
-                  Text("${report.emergencies?[0].description}", style: const TextStyle(fontSize: 12),),
+                  Text("${report.emergencies?[0].description}", maxLines: 2,  style: const TextStyle(fontSize: 12, overflow: TextOverflow.ellipsis),),
                    AppSpaces.height16,
                    LinearProgressIndicator(value: report.emergencies?[0].severity == "HIGH"? 1.0 : report.emergencies?[0].severity == "LOW"? 0.6 : 0.4,borderRadius: BorderRadius.circular(10),minHeight: 6,color:report.emergencies?[0].severity == "HIGH"? Colors.red : report.emergencies?[0].severity == "HIGH"? Colors.green : const Color(0xffF79009),backgroundColor: const Color(0xffD0D5DD),),
                    AppSpaces.height4,

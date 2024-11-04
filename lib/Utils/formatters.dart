@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
 class Formatters {
@@ -127,5 +128,29 @@ class Formatters {
 
   return capitalizedString;
 }
+
+
+  static LatLng parseLatLng(String latLongString) {
+    print(latLongString);
+  final latLongRegex = RegExp(r'\[([0-9.]+)° ([NS]), ([0-9.]+)° ([EW])\]');
+  final match = latLongRegex.firstMatch(latLongString);
+
+  if (match == null) {
+    throw FormatException("Invalid lat/long format");
+  }
+
+  double latitude = double.parse(match.group(1)!);
+  double longitude = double.parse(match.group(3)!);
+
+  if (match.group(2) == 'S') {
+    latitude = -latitude;
+  }
+  if (match.group(4) == 'W') {
+    longitude = -longitude;
+  }
+
+  return LatLng(latitude, longitude);
+}
+
 
 }

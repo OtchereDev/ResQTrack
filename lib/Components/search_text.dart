@@ -14,6 +14,7 @@ class SearchText extends StatelessWidget {
       decoration: InputDecoration(
         hintText: 'Search...',
         alignLabelWithHint: true,
+        enabled: false,
         hintStyle:
             GoogleFonts.raleway(color: const Color(0xff4D5061), fontSize: 11),
         filled: true,
