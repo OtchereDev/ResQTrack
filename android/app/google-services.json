@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:926113211384:android:87ce3a44257f9d8d3fec0d",
+        "mobilesdk_app_id": "1:926113211384:android:116b0a2d18c8212b3fec0d",
         "android_client_info": {
-          "package_name": "com.hackthon.resqTrack"
+          "package_name": "com.hackthon.resqTracked"
         }
       },
       "oauth_client": [

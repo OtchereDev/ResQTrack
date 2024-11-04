@@ -51,19 +51,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDE06480ZrM1pqQwOssdQvebYa4r2Popdg',
-    appId: '1:926113211384:android:2a6f3ce0ebb76edd3fec0d',
+    appId: '1:926113211384:android:116b0a2d18c8212b3fec0d',
     messagingSenderId: '926113211384',
     projectId: 'sosbackend-eeb26',
-    storageBucket: 'sosbackend-eeb26.appspot.com',
+    storageBucket: 'sosbackend-eeb26.firebasestorage.app',
+    
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCj4cWpmlnwj-9k6f5CQTUst4zR-ARPv1w',
-    appId: '1:926113211384:ios:f4f3e5493521c7693fec0d',
+    appId: '1:926113211384:ios:722355d5e99c4b163fec0d',
     messagingSenderId: '926113211384',
     projectId: 'sosbackend-eeb26',
-    storageBucket: 'sosbackend-eeb26.appspot.com',
-    iosBundleId: 'com.hackthon.resqTracks',
+    storageBucket: 'sosbackend-eeb26.firebasestorage.app',
+    iosBundleId: 'com.hackthon.resqTracked',
   );
-
 }
