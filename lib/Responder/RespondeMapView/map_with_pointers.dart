@@ -8,6 +8,8 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
+import 'package:resq_track/Components/alert_dailog.dart';
+import 'package:resq_track/Components/notification_popup.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Core/app_constants.dart';
 import 'package:resq_track/Model/Request/emergency_m.dart';
@@ -19,6 +21,7 @@ import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Responder/Emergency/responder_emergency_details.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
+import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
 import 'package:resq_track/Utils/Dialogs/notifications.dart';
 import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Utils/utils.dart';
@@ -33,7 +36,7 @@ class MapWithPointers extends StatefulWidget {
 class _MapWithPointersState extends State<MapWithPointers> {
   GoogleMapController? _controller;
 
-  final isShowList = ValueNotifier(false);
+  final isShowList = ValueNotifier(true);
 
   @override
   void initState() {
@@ -43,7 +46,7 @@ class _MapWithPointersState extends State<MapWithPointers> {
     context.read<LocationProvider>().getCurrentLocation();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      var pro = context.read<ReportProvider>();
+      var pro = context.read<ResponderProvider>();
       Future.delayed(const Duration(seconds: 0), () {
         pro.getDashboardData(context);
       });
@@ -121,11 +124,11 @@ class _MapWithPointersState extends State<MapWithPointers> {
   Widget build(BuildContext context) {
     final provider = context.watch<LocationProvider>();
     final profile = context.read<ProfileProvider>();
-     var callProvider =
-                      Provider.of<CallProvider>(context);
-    var activeEmergencyData;
+    var callProvider = Provider.of<CallProvider>(context);
+    var responderPro = Provider.of<ResponderProvider>(context);
+    // var activeEmergencyData;
 
-    print("========${profile.currentUserProfile?.id}");
+    // print("========${profile.currentUserProfile?.id}");
 
     return Scaffold(
       body: (provider.latLong['lat'] == 0.0 && provider.latLong['lng'] == 0.0)
@@ -138,222 +141,252 @@ class _MapWithPointersState extends State<MapWithPointers> {
                   .where("status", isEqualTo: "ringing")
                   .snapshots(),
               builder: (context, snapshot) {
-                 if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-            if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                var callData = snapshot.data!.docs.first.data()
-                    as Map<String, dynamic>;
-          
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                 
-                  callProvider.listenToCallStatus(
-                    callModel: CallModel.fromJson(callData),
-                    context: context,
-                    isReceiver: true,
-                  );
-          
-                  callProvider.playContactingRing(isCaller: false);
-                });
-                if (callProvider.callStatus == "ErrorUnAnsweredVideoChatState") {
-                  NotificationUtils.showToast(context,
-                      message: 'Unexpected Error: ${callProvider.callStatus}');
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
                 }
-                if (callProvider.callStatus == "DownCountCallTimerFinishState") {
-                  if (callProvider.remoteUid == null) {
-                    callProvider.updateCallStatusToUnAnswered(
-                        CallModel.fromJson(callData).id);
+                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                  var callData =
+                      snapshot.data!.docs.first.data() as Map<String, dynamic>;
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    callProvider.listenToCallStatus(
+                      callModel: CallModel.fromJson(callData),
+                      context: context,
+                      isReceiver: true,
+                    );
+
+                    callProvider.playContactingRing(isCaller: false);
+                  });
+                  if (callProvider.callStatus ==
+                      "ErrorUnAnsweredVideoChatState") {
+                    NotificationUtils.showToast(context,
+                        message:
+                            'Unexpected Error: ${callProvider.callStatus}');
                   }
-                }
-                if (callProvider.callStatus == "AgoraRemoteUserJoinedEvent") {
-                  callProvider.countDownTimer?.cancel();
-                }
-                if (callProvider.callStatus == "CallNoAnswerState") {
-                  NotificationUtils.showToast(context,
-                      message: 'No response!');
-                  Navigator.pop(context);
-                }
-                if (callProvider.callStatus == "CallCancelState") {
-                  NotificationUtils.showToast(context,
-                      message: 'Caller cancelled the call!');
-          
-                  Navigator.pop(context);
-                }
-                if (callProvider.callStatus == "CallRejectState") {
-                  NotificationUtils.showToast(context,
-                      message: 'Receiver rejected the call!');
-                  // Navigator.pop(context);
-                }
-                if (callProvider.callStatus == "CallEndState") {
-                  NotificationUtils.showToast(context,
-                      message: 'Call ended!');
-                  Navigator.pop(context);
-                }
-          
-                return ModalProgressHUD(
-                  inAsyncCall: callProvider.isCalling,
-                  child: WillPopScope(
-                    onWillPop: () async => false,
-                    child: Scaffold(
-                      body: Stack(
-                        alignment: AlignmentDirectional.center,
-                        children: [
-                          _remoteUid == null
-                              ? !_localUserJoined
-                                  ? Container(
-                                      color: Colors.red,
-                                      child: AgoraVideoView(
-                                        controller: VideoViewController(
-                                          rtcEngine: _engine,
-                                          canvas:
-                                              const VideoCanvas(uid: 0),
+                  if (callProvider.callStatus ==
+                      "DownCountCallTimerFinishState") {
+                    if (callProvider.remoteUid == null) {
+                      callProvider.updateCallStatusToUnAnswered(
+                          CallModel.fromJson(callData).id);
+                    }
+                  }
+                  if (callProvider.callStatus == "AgoraRemoteUserJoinedEvent") {
+                    callProvider.countDownTimer?.cancel();
+                  }
+                  if (callProvider.callStatus == "CallNoAnswerState") {
+                    NotificationUtils.showToast(context,
+                        message: 'No response!');
+                    Navigator.pop(context);
+                  }
+                  if (callProvider.callStatus == "CallCancelState") {
+                    NotificationUtils.showToast(context,
+                        message: 'Caller cancelled the call!');
+
+                    Navigator.pop(context);
+                  }
+                  if (callProvider.callStatus == "CallRejectState") {
+                    NotificationUtils.showToast(context,
+                        message: 'Receiver rejected the call!');
+                    // Navigator.pop(context);
+                  }
+                  if (callProvider.callStatus == "CallEndState") {
+                    NotificationUtils.showToast(context,
+                        message: 'Call ended!');
+                    Navigator.pop(context);
+                  }
+
+                  return ModalProgressHUD(
+                    inAsyncCall: callProvider.isCalling,
+                    child: WillPopScope(
+                      onWillPop: () async => false,
+                      child: Scaffold(
+                        body: Stack(
+                          alignment: AlignmentDirectional.center,
+                          children: [
+                            _remoteUid == null
+                                ? !_localUserJoined
+                                    ? Container(
+                                        color: Colors.red,
+                                        child: AgoraVideoView(
+                                          controller: VideoViewController(
+                                            rtcEngine: _engine,
+                                            canvas: const VideoCanvas(uid: 0),
+                                          ),
                                         ),
+                                      )
+                                    : _buildAvatarContainer(
+                                        CallModel.fromJson(callData))
+                                : Stack(
+                                    children: [
+                                      Center(
+                                          child: _remoteVideo(
+                                              remoteUserId: _remoteUid!,
+                                              channelId:
+                                                  CallModel.fromJson(callData)
+                                                      .channelName!,
+                                              engine: _engine)),
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: SizedBox(
+                                            width: 122,
+                                            height: 219.0,
+                                            child: AgoraVideoView(
+                                              controller: VideoViewController(
+                                                rtcEngine: _engine,
+                                                canvas:
+                                                    const VideoCanvas(uid: 0),
+                                              ),
+                                            )),
                                       ),
-                                    )
-                                  : _buildAvatarContainer(
-                                      CallModel.fromJson(callData))
-                              : Stack(
-                                  children: [
-                                    Center(
-                                        child: _remoteVideo(
-                                            remoteUserId: _remoteUid!,
-                                            channelId: CallModel.fromJson(
-                                                    callData)
-                                                .channelName!,
-                                            engine: _engine)),
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: SizedBox(
-                                          width: 122,
-                                          height: 219.0,
-                                          child: AgoraVideoView(
-                                            controller:
-                                                VideoViewController(
-                                              rtcEngine: _engine,
-                                              canvas: const VideoCanvas(
-                                                  uid: 0),
-                                            ),
-                                          )),
-                                    ),
-                                  ],
-                                ),
-                          _buildUserInfoAndControls(
-                              callProvider, true, CallModel.fromJson(callData), onTap:(){
-                                _dispose();
-                              }),
-                        ],
+                                    ],
+                                  ),
+                            _buildUserInfoAndControls(callProvider, true,
+                                CallModel.fromJson(callData), onTap: () {
+                              _dispose();
+                            }),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }else{
-                return Stack(
-                  children: [
-                    Consumer<ReportProvider>(
-                      builder: (context, report, _) {
-                        if(report.isLoading) return LoadingPage();
-                        if (report.emModel == null || report.emModel.isEmpty) {
-                          // Handle case where no emergency data exists
+                  );
+                } else {
+                  return Stack(
+                    children: [
+                      Consumer<ReportProvider>(
+                        builder: (context, report, _) {
+                          if (report.isLoading) return LoadingPage();
+                          if (report.emModel == null ||
+                              report.emModel.isEmpty) {
+                            // Handle case where no emergency data exists
+                            return GoogleMap(
+                              initialCameraPosition: CameraPosition(
+                                target: LatLng(provider.latLong['lat'],
+                                    provider.latLong['lng']),
+                                zoom: 17,
+                              ),
+                              onMapCreated: (controller) {
+                                _controller = controller;
+                              },
+                            );
+                          }
                           return GoogleMap(
                             initialCameraPosition: CameraPosition(
-                              target: LatLng(provider.latLong['lat'],
-                                  provider.latLong['lng']),
+                              target: LatLng(report.emModel[2].latitude,
+                                  report.emModel[2].longitude),
                               zoom: 17,
                             ),
+                            markers: _createMarkers(report.emModel),
                             onMapCreated: (controller) {
                               _controller = controller;
                             },
                           );
-                        }
-                        return GoogleMap(
-                          initialCameraPosition: CameraPosition(
-                            target: LatLng(report.emModel[2].latitude,
-                                report.emModel[2].longitude),
-                            zoom: 17,
-                          ),
-                          markers: _createMarkers(report.emModel),
-                          onMapCreated: (controller) {
-                            _controller = controller;
-                          },
-                        );
-                      },
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: StreamBuilder<List<Map<String, dynamic>>>(
-                          stream: RequestApi().getResponderActiveEmergency(
-                              "CONNECTING",
-                              profile.currentUserProfile?.id ?? ""),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
+                        },
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: StreamBuilder<List<Map<String, dynamic>>>(
+                            stream: RequestApi().getResponderActiveEmergency(
+                                "CONNECTING",
+                                profile.currentUserProfile?.id ?? ""),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-                            if (snapshot.hasError) {
-                              return Center(
-                                  child: Text("Error: ${snapshot.error}"));
-                            }
+                              if (snapshot.hasError) {
+                                return Center(
+                                    child: Text("Error: ${snapshot.error}"));
+                              }
 
-                            // if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            //   return Center(
-                            //       child: Text("No active emergencies found"));
-                            // }
+                              // print(
+                              //     "===========${snapshot.data}===============");
 
-                            print("===========${snapshot.data}===============");
+                              // Active Emergency Data
+                              final activeEmergencyData = snapshot.data!;
+                              var shared_prefs_manager = SharedPrefManager();
 
-                            // Active Emergency Data
-                            final activeEmergencyData = snapshot.data!;
-
-                            return Container(
-                              padding: const EdgeInsets.only(
-                                  top: 10, left: 20, right: 20),
-                              width: double.infinity,
-                              height: Utils.screenHeight(context) * 0.5,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30)),
-                                color: AppColors.WHITE,
-                              ),
-                              child: ValueListenableBuilder(
-                                  valueListenable: isShowList,
-                                  builder: (context, show, _) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: (){
-                                                isShowList.value = !show;
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) async {
+                                bool viewOnce =
+                                    await shared_prefs_manager.getViewAlert();
+                                if (activeEmergencyData.isNotEmpty &&
+                                    activeEmergencyData[0]['status'] ==
+                                        "CONNECTING") {
+                                  if (!viewOnce) {
+                                    Future.delayed(Duration(seconds: 1), () {
+                                      notificationDialog(
+                                          onTap: () {
+                                            shared_prefs_manager.setViewNewAlert(true);
+                                            AppNavigationHelper
+                                                .navigateToWidget(
+                                                    context,
+                                                    ResponderEmergencyDetails(
+                                                      emergencyData:
+                                                          activeEmergencyData[
+                                                              0],
+                                                    ));
                                           },
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text(
-                                                "Active emergencies",
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600),
-                                              ),
-                                              IconButton(
-                                                  onPressed: () {
-                                                    isShowList.value = !show;
-                                                  },
-                                                  icon: Icon(show
-                                                      ? Icons
-                                                          .keyboard_arrow_down_rounded
-                                                      : Icons
-                                                          .keyboard_arrow_up_outlined))
-                                            ],
+                                          title: 'New Emergency Alert',
+                                          message:
+                                              "New Emergency with ID ${activeEmergencyData[0]['emergency_id']} and severity is ${activeEmergencyData[0]['severity']}, Please Accept Now");
+                                    });
+                                  }
+                                }
+                              });
+
+                              return Container(
+                                padding: const EdgeInsets.only(
+                                    top: 10, left: 20, right: 20),
+                                width: double.infinity,
+                                height: Utils.screenHeight(context) * 0.5,
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(30),
+                                      topRight: Radius.circular(30)),
+                                  color: AppColors.WHITE,
+                                ),
+                                child: ValueListenableBuilder(
+                                    valueListenable: isShowList,
+                                    builder: (context, show, _) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              isShowList.value = !show;
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text(
+                                                  "Active emergencies",
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                ),
+                                                IconButton(
+                                                    onPressed: () {
+                                                      isShowList.value = !show;
+                                                    },
+                                                    icon: Icon(show
+                                                        ? Icons
+                                                            .keyboard_arrow_down_rounded
+                                                        : Icons
+                                                            .keyboard_arrow_up_outlined))
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        Expanded(
-                                          child: SingleChildScrollView(
-                                            child: Consumer<ReportProvider>(
-                                              builder: (context, report, _) {
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              child: Consumer<ReportProvider>(
+                                                  builder:
+                                                      (context, report, _) {
                                                 return Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -377,15 +410,6 @@ class _MapWithPointersState extends State<MapWithPointers> {
                                                                     activeEmergencyData[
                                                                         index],
                                                                 onTap: () {
-                                                                  context
-                                                                      .read<
-                                                                          ResponderProvider>()
-                                                                      .acceptRequest(
-                                                                          context,
-                                                                          activeEmergencyData[
-                                                                                  index]
-                                                                              [
-                                                                              'emergency_id']);
                                                                   AppNavigationHelper
                                                                       .navigateToWidget(
                                                                           context,
@@ -397,7 +421,8 @@ class _MapWithPointersState extends State<MapWithPointers> {
                                                               );
                                                             }),
                                                           )
-                                                        : const SizedBox.shrink(),
+                                                        : const SizedBox
+                                                            .shrink(),
                                                     AppSpaces.height20,
                                                     const Text(
                                                       "Performance Metrics",
@@ -411,17 +436,20 @@ class _MapWithPointersState extends State<MapWithPointers> {
                                                         "Incident Outcome",
                                                         "Arrests",
                                                         "user_hands",
-                                                        "0",
+                                                        "${responderPro.homeMetrics?.numberOfArrest ?? "Loading..."}",
+
                                                         const Color(0xffFF1E0F)
                                                             .withOpacity(0.2),
                                                         has2: true,
+                                                        value2: "${responderPro.homeMetrics?.accumulatedTurnaroundTime ?? "Loading..."}",
+                                                     
                                                         onTap: () {}),
                                                     AppSpaces.height8,
                                                     _performanceMetricTile(
                                                       "Response Time",
                                                       "Arrests",
                                                       "clock1",
-                                                      "35.42 min",
+                                                      "${responderPro.homeMetrics?.accumulatedResponseTime ?? "Loading..."} min",
                                                       const Color(0xff0085FF)
                                                           .withOpacity(0.2),
                                                       has2: false,
@@ -431,7 +459,7 @@ class _MapWithPointersState extends State<MapWithPointers> {
                                                       "Average On-scene Time",
                                                       "Arrests",
                                                       "pointer",
-                                                      "56.20 min",
+                                                      "${responderPro.homeMetrics?.accumulatedTurnaroundTime ?? "Loading..."} min",
                                                       const Color(0xff7A71D1)
                                                           .withOpacity(0.2),
                                                       has2: false,
@@ -439,20 +467,19 @@ class _MapWithPointersState extends State<MapWithPointers> {
                                                     AppSpaces.height20,
                                                   ],
                                                 );
-                                              }
+                                              }),
                                             ),
-                                          ),
-                                        )
-                                      ],
-                                    );
-                                  }),
-                            );
-                          }),
-                    )
-                  ],
-                );
-              }}),
-  
+                                          )
+                                        ],
+                                      );
+                                    }),
+                              );
+                            }),
+                      )
+                    ],
+                  );
+                }
+              }),
     );
   }
 
@@ -682,8 +709,6 @@ List<EmergencyMod> shops = [
   EmergencyMod(name: 'Shop 6', latitude: 5.640308, longitude: -0.161662),
 ];
 
-
-
 Widget _buildAvatarContainer(CallModel callModel) {
   return Container(
     decoration: BoxDecoration(
@@ -698,7 +723,8 @@ Widget _buildAvatarContainer(CallModel callModel) {
 }
 
 Widget _buildUserInfoAndControls(
-    CallProvider cubit, bool isReceiver, CallModel callModel, {VoidCallback? onTap}) {
+    CallProvider cubit, bool isReceiver, CallModel callModel,
+    {VoidCallback? onTap}) {
   return Container(
     padding: const EdgeInsets.all(15.0),
     child: Column(
@@ -723,16 +749,15 @@ Widget _buildUserInfoAndControls(
                         style: TextStyle(color: Colors.white, fontSize: 39.0)),
               )
             : Expanded(child: Container()),
-        _buildActionButtons(cubit, true, callModel, onTap:(){
-          
-        }),
+        _buildActionButtons(cubit, true, callModel, onTap: () {}),
       ],
     ),
   );
 }
 
 Widget _buildActionButtons(
-    CallProvider cubit, bool isReceiver, CallModel callModel, {VoidCallback? onTap}) {
+    CallProvider cubit, bool isReceiver, CallModel callModel,
+    {VoidCallback? onTap}) {
   return cubit.remoteUid == null
       ? Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -741,7 +766,6 @@ Widget _buildActionButtons(
               Expanded(
                 child: InkWell(
                   onTap: () {
-                  
                     cubit.updateCallStatusToAccept(callModel);
                   },
                   child: Container(

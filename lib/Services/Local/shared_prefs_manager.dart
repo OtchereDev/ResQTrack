@@ -75,14 +75,14 @@ Future<User?> getEmergency() async {
     preferences.setBool('isResponder', patient);
   }
 
-  setFirstTimeUser(bool firstime) async {
+  setViewNewAlert(bool firstime) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setBool(firstTime, firstime);
+    pref.setBool("newAlert", firstime);
   }
 
-  Future<bool> isFirstTimeUser() async {
+  Future<bool> getViewAlert() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    bool? phone = pref.getBool(firstTime);
+    bool? phone = pref.getBool("newAlert");
     
     return phone?? false;
   }

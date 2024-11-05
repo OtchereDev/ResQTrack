@@ -79,12 +79,12 @@ class PushNotificationService {
       // local notification to show to users using the created channel.
       print("-----${android?.toMap()}.---${remoteMessage?.data}---------${notification?.body}");
       //Foreground Msg
-      // if (remoteMessage!.data['type'] != 'call') {
-      //   showNotification(
-      //       title: remoteMessage.data['title'],
-      //       body: remoteMessage.data['body'],
-      //       type: remoteMessage.data['type']);
-      // }
+      if (remoteMessage!.data['type'] != 'call') {
+        showNotification(
+            title: remoteMessage.data['title'],
+            body: remoteMessage.data['body'],
+            type: remoteMessage.data['type']);
+      }
     });
 
   }

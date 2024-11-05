@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-
-        
+    FlutterLocalNotificationsPlugin();
 
 var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
   'channel id',
@@ -44,9 +42,9 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-   var androidSettings =
+    var androidSettings =
         const AndroidInitializationSettings('@mipmap/ic_launcher');
-    final DarwinInitializationSettings initializationSettingsDarwin =
+    const DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
             onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
@@ -57,8 +55,8 @@ class NotificationService {
         onDidReceiveNotificationResponse: ((details) {
       print(details.payload);
     }));
-
   }
+
   static AndroidNotificationDetails callChannel =
       const AndroidNotificationDetails('com.hackthon.resqTrack', 'call_channel',
           autoCancel: false,
@@ -73,9 +71,10 @@ class NotificationService {
           importance: Importance.low,
           priority: Priority.low);
 
- static Future onDidReceiveLocalNotification(int? id, String? title, String? body, String? payload) async {
-  debugPrint
-  ("-----------------On Did onDidReceiveLocalNotification -------------------------------------");
+  static Future onDidReceiveLocalNotification(
+      int? id, String? title, String? body, String? payload) async {
+    debugPrint(
+        "-----------------On Did onDidReceiveLocalNotification -----------------------");
     // showDialog(
     //   context: myContext,
     //   builder: (context) => CupertinoAlertDialog(
@@ -94,7 +93,6 @@ class NotificationService {
 
   Future selectNotification(String payload) async {
     //Handle notification tapped logic here
-  ("-----------------On Did onDidReceiveLocalNotification -------------------------------------");
-
+    print("-----------------On Did onDidReceiveLocalNotification -----------------------");
   }
 }

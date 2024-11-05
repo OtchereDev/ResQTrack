@@ -19,9 +19,14 @@ import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Provider/Util/util_provider.dart';
+import 'package:resq_track/Services/Firbase/home_api.dart';
 import 'package:resq_track/Services/fcm/notification.dart';
+import 'package:resq_track/Services/fcm/notification_service.dart';
 import 'package:resq_track/Views/Intro/init_screen.dart';
+import 'package:resq_track/Views/MapViews/map_home.dart';
 import 'package:resq_track/firebase_options.dart';
+
+ var naviKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,12 +35,15 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  
   //Handle FCM background
   FirebaseMessaging.onBackgroundMessage(_backgroundHandler);
 
-  
+  //
+  NotificationService().init();
 
+
+  // PushNotificationService().setupInteractedMessage();
+  
 
   runApp(const MyApp());
 }
@@ -58,26 +66,26 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => UtilPovider()),
             ChangeNotifierProvider(create: (_) => LocationProvider()),
             ChangeNotifierProvider(create: (_) => ReportProvider()),
-            ChangeNotifierProvider(create: (_) => MapProvider()..initializeMap(context)),
+            ChangeNotifierProvider(
+                create: (_) => MapProvider()..initializeMap(context)),
             ChangeNotifierProvider(create: (_) => CallProvider()),
             ChangeNotifierProvider(create: (_) => ChatProvider()),
             ChangeNotifierProvider(create: (_) => ResponderProvider()),
             ChangeNotifierProvider(create: (_) => ProfileProvider(context)),
-            ChangeNotifierProvider(
-              create: (_)  {
-                //  PushNotificationService().setupInteractedMessage(context);
-               return  SetupProvider()
+            ChangeNotifierProvider(create: (_) {
+              return SetupProvider()
                 ..listenToInComingCalls("")
                 ..getUsersRealTime()
                 ..getCallHistoryRealTime()
                 ..updateFcmToken();
-              }
-            ),
+                
+            }),
           ],
           builder: (context, widget) {
-             PushNotificationService().setupInteractedMessage(context);
+            PushNotificationService().setupInteractedMessage(context);
             return MaterialApp(
               title: 'Flutter Demo',
+              navigatorKey: naviKey,
               navigatorObservers: [BotToastNavigatorObserver()],
               debugShowCheckedModeBanner: false,
               builder: BotToastInit(),
@@ -93,8 +101,9 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> _backgroundHandler(RemoteMessage message) async {
-    debugPrint("-------------------$message-----------------");
+  debugPrint("-------------------$message-----------------");
 
+  // naviKey.currentState!.pushReplacement(MaterialPageRoute(builder: (context)=>MapHomePage()));
 
   if (message.data['type'] == 'call') {
     Map<String, dynamic> bodyMap = jsonDecode(message.data['body']);

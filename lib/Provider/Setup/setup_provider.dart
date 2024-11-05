@@ -1,9 +1,8 @@
 import 'dart:convert';
-import 'dart:math';
+// import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 import 'package:resq_track/Core/app_constants.dart';
 import 'package:resq_track/Model/Response/call_model.dart';
 import 'package:resq_track/Model/Response/fcm_payload_model.dart';
@@ -58,26 +57,27 @@ class SetupProvider extends ChangeNotifier {
 
   // Fetch call history in real time
   void getCallHistoryRealTime() {
-    // _homeApi.getCallHistoryRealTime().onData((data) {
-    //   if (data.size != 0) {
-    //     calls = []; // For real-time update the list
-    //     for (var element in data.docs) {
-    //       if (element.data()['callerId'] == CacheHelper.getString(key: 'uId') ||
-    //           element.data()['receiverId'] == CacheHelper.getString(key: 'uId')) {
-    //         var call = CallModel.fromJson(element.data());
-    //         if (call.callerId == CacheHelper.getString(key: 'uId')) {
-    //           call.otherUser = UserModel(name: call.receiverName!, avatar: call.receiverAvatar!);
-    //         } else {
-    //           call.otherUser = UserModel(name: call.callerName!, avatar: call.callerAvatar!);
-    //         }
-    //         calls.add(call);
-    //       }
-    //     }
-    //     notifyListeners(); // Notify state change
-    //   } else {
-    //     debugPrint('No Call History');
-    //   }
-    // });
+    _homeApi.getCallHistoryRealTime().onData((data) {
+      if (data.size != 0) {
+        // calls = []; // For real-time update the list
+        for (var element in data.docs) {
+          print("----------$element--------");
+          // if (element.data()['callerId'] == CacheHelper.getString(key: 'uId') ||
+          //     element.data()['receiverId'] == CacheHelper.getString(key: 'uId')) {
+          //   var call = CallModel.fromJson(element.data());
+          //   if (call.callerId == CacheHelper.getString(key: 'uId')) {
+          //     call.otherUser = UserModel(name: call.receiverName!, avatar: call.receiverAvatar!);
+          //   } else {
+          //     call.otherUser = UserModel(name: call.callerName!, avatar: call.callerAvatar!);
+          //   }
+          //   calls.add(call);
+          // }
+        }
+        notifyListeners(); // Notify state change
+      } else {
+        debugPrint('No Call History');
+      }
+    });
   }
 
   // Fire a video call
@@ -142,14 +142,6 @@ class SetupProvider extends ChangeNotifier {
             debugPrint('Send Notify Success ${value?.body}');
           }
         });
-        // DioHelper.postData(data: fcmSendData.toMap(), baseUrl: 'https://fcm.googleapis.com/', endPoint: 'fcm/send')
-        //   .then((value) {
-        //     debugPrint('Send Notify Success ${value.data.toString()}');
-        //     notifyListeners(); // Notify state change
-        //   }).catchError((onError) {
-        //     fireCallLoading = false;
-        //     notifyListeners(); // Notify state change
-        //   });
       }
     }).catchError((onError) {
       fireCallLoading = false;
@@ -159,7 +151,7 @@ class SetupProvider extends ChangeNotifier {
 
   // Listen to incoming calls
   void listenToInComingCalls(String id) {
-    _callApi.listenToInComingCall( id).onData((data) {
+    _callApi.listenToInComingCall(id).onData((data) {
       if (data.size != 0) {
         for (var element in data.docs) {
           if (element.data()['current'] == true) {

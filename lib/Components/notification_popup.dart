@@ -5,7 +5,7 @@ import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
 
 notificationDialog(
-    {required String title, required String message}) {
+    {required String title, required String message, VoidCallback? onTap}) {
   BotToast.showNotification(
       backgroundColor: AppColors.WHITE,
       contentPadding: EdgeInsets.zero,
@@ -19,9 +19,10 @@ notificationDialog(
       trailing: (cancelFunc) {
         return IconButton(onPressed: cancelFunc, icon: const Icon(Icons.close, size: 15,));
       },
+      onTap: onTap,
       subtitle: (_) => Text(message, style: const TextStyle(fontSize: 12),),
       animationDuration: const Duration(milliseconds: 800),
       animationReverseDuration: const Duration(milliseconds: 800),
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 5),
       borderRadius: 10.0);
 }

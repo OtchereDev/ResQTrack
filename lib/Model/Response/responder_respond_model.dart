@@ -11,7 +11,7 @@ class ResponderRequestModel {
 
     factory ResponderRequestModel.fromJson(Map<String, dynamic> json) => ResponderRequestModel(
         status: json["status"],
-        emergency: Emergency.fromJson(json["emergency"]),
+        emergency:json["emergency"] != null ? Emergency.fromJson(json["emergency"]): null,
     );
 
     Map<String, dynamic> toJson() => {

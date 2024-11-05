@@ -145,14 +145,5 @@ class ReportProvider extends ChangeNotifier {
     });
   }
 
-  getDashboardData(context) async {
-     setLoading(true);
-    await emergencyServices.getDashboardData(
-        context, {"location": "0.83663, -3.008474"}).then((response) {
-                setLoading(false);
-      if (response['status'] == true) {}else {
-        alertDialog(title: 'Failed', message: response['message'], isSuccess: false);
-      }
-    });
-  }
+
 }

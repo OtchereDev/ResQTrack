@@ -50,26 +50,26 @@ class ResponderService with AuthBaseRepository {
   }
 
   // @override
-  // Future uploadEmergencyPhoto(context, data) async {
-  //   dynamic responseMap = {"status": false, "message": "", "data": null};
+  Future getResponderDashboard(context, data) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
 
-  //   await post(context,
-  //           url: "$kBaseUrl/emergency/upload-photos", data: jsonEncode(data))
-  //       .then((response) {
-  //     if (response != null) {
-  //       var dataResponse = json.decode(response.body);
-  //       if (response.statusCode == 200 || response.statusCode == 201) {
-  //         responseMap['status'] = true;
-  //         responseMap['message'] = dataResponse['message'];
-  //         responseMap['data'] = json.decode(response.body);
-  //       } else {
-  //         responseMap['message'] = dataResponse['message'];
-  //         responseMap['data'] = dataResponse;
-  //       }
-  //     }
-  //   });
-  //   return responseMap;
-  // }
+    await post(context,
+            url: "$kBaseUrl/dashboard/responder", data: jsonEncode(data))
+        .then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = json.decode(response.body);
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
 
   // @override
   Future getReport(context) async {
