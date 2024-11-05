@@ -1,6 +1,7 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -338,7 +339,14 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
                 children: [
                   const Text("Responding to emergency...",
                       style: TextStyle(fontWeight: FontWeight.w600)),
-                      TextButton(onPressed: (){}, child: const Text("At Destination"))
+                      IconButton(onPressed: (){
+                        AppNavigationHelper.navigateToWidget(context, MapScreenWidthCordinate(
+                              latLng: LatLng(
+                                  widget.reporterData.location!.coordinates![1],
+                                  widget
+                                      .reporterData.location!.coordinates![0]),
+                            ),);
+                      }, icon: Icon(FeatherIcons.mapPin))
                 ],
               ),
               AppSpaces.height16,

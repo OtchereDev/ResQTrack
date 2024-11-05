@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
+import 'package:resq_track/Provider/Map/map_provider.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Responder/Emergency/responder_to_emergency.dart';
@@ -11,6 +13,7 @@ import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
 import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Utils/utils.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
+import 'package:resq_track/Views/MapViews/map_view_with_cordinate.dart';
 import 'package:resq_track/Views/MapViews/map_with_polyline.dart';
 import 'package:resq_track/Widgets/back_arrow_button.dart';
 import 'package:resq_track/Widgets/custom_buttom.dart';
@@ -42,6 +45,7 @@ class _ResponderEmergencyDetailsState extends State<ResponderEmergencyDetails> {
     return Consumer<ResponderProvider>(
         builder: (context, responderProvider, _) {
       return Consumer<ReportProvider>(builder: (context, report, _) {
+         
         return Scaffold(
           backgroundColor: AppColors.WHITE,
           body: report.isLoading
@@ -49,10 +53,7 @@ class _ResponderEmergencyDetailsState extends State<ResponderEmergencyDetails> {
               : Stack(
                   children: [
                     const MapWithPolylinePage(),
-                    // MapScreenWidthCordinate(
-                    //   latLng: LatLng(
-                    //       widget.emergencyData['location']['latitude'], widget.emergencyData['location']['longitude']),
-                    // ),
+                  
                     Positioned(
                       bottom: 0,
                       child: Container(

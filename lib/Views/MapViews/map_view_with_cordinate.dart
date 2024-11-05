@@ -48,6 +48,8 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
           current.currentPosition!.longitude,
         );
 
+        // print("-----------------------$currentLocation---------------==${widget.latLng}===================================");
+
         // Move the camera to the user's current location whenever it updates
         if (mapController != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -68,6 +70,10 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
               markerId: MarkerId('currentLocation'),
               position: currentLocation,
             ),
+            //  Marker(
+            //   markerId: MarkerId('destination'),
+            //   position: widget.latLng!,
+            // ),
           },
           polylines: Set<Polyline>.of(mapProvider.polylines.values), // Show polyline on the map
           onMapCreated: (GoogleMapController controller) {

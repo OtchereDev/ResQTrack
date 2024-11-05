@@ -90,7 +90,7 @@ class _HomeDialogState extends State<HomeDialog> {
                 ),
                 AppSpaces.height20,
                 viewMoreButton("Recent emergencies ${text2Speech.isListening}", () {
-                  AppNavigationHelper.navigateToWidget(context, AgoraMyApp());
+                  // AppNavigationHelper.navigateToWidget(context, AgoraMyApp());
                 }),
                 AppSpaces.height8,
                 ...List.generate(
@@ -101,7 +101,7 @@ class _HomeDialogState extends State<HomeDialog> {
                 ),
                 AppSpaces.height20,
                 viewMoreButton("Safety tips", () {
-                  AppNavigationHelper.navigateToWidget(context, TextToSpeech());
+                  // AppNavigationHelper.navigateToWidget(context, TextToSpeech());
                 }),
                 AppSpaces.height8,
                 const SafetyTipsContainer(),
