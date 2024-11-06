@@ -12,6 +12,7 @@ import 'package:resq_track/Provider/Auth/login_provider.dart';
 import 'package:resq_track/Provider/Auth/verification_countdown_provider.dart';
 import 'package:resq_track/Provider/Call/call_provider.dart';
 import 'package:resq_track/Provider/Chat/chat_provider.dart';
+import 'package:resq_track/Provider/Chat/user_messaging_provider.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Map/map_provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
@@ -70,6 +71,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(
                 create: (_) => MapProvider()..initializeMap(context)),
             ChangeNotifierProvider(create: (_) => CallProvider()),
+            ChangeNotifierProvider(create: (_) => MessagingProvider()),
             ChangeNotifierProvider(create: (_) => ChatProvider()),
         Provider<RequestApi>(create: (_) => RequestApi()),
             ChangeNotifierProvider(create: (_) => ResponderProvider()),

@@ -81,7 +81,7 @@ class _ResponderEmergencyDetailsState extends State<ResponderEmergencyDetails> {
                                   responderProvider.acceptRequest(context,
                                       widget.emergencyData['emergency_id']);
                                   SharedPrefManager().setViewNewAlert(false);
-                                  AppNavigationHelper.navigateToWidget(
+                                  AppNavigationHelper.navigateAndReplaceWidget(
                                       context,
                                       RespondToEmergency(
                                           reporterData: responderProvider

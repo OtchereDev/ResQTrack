@@ -21,9 +21,11 @@ import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Responder/Emergency/responder_emergency_details.dart';
+import 'package:resq_track/Responder/ResponderChat/responder_chat.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Utils/Dialogs/notifications.dart';
 import 'package:resq_track/Utils/utils.dart';
+import 'package:resq_track/Views/Chat/user_chat.dart';
 import 'package:resq_track/Views/MapViews/map_view_with_cordinate.dart';
 import 'package:resq_track/Views/MapViews/map_with_polyline.dart';
 import 'package:resq_track/Widgets/back_arrow_button.dart';
@@ -320,7 +322,8 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
   Widget _buildBottomContainer(BuildContext context, dynamic user,
       Map<String, dynamic> locationData, SetupProvider callPro) {
     var loc = context.read<LocationProvider>();
-    var res =  context.watch<ResponderProvider>();
+    var profile = context.read<ProfileProvider>();
+    var res = context.watch<ResponderProvider>();
     res.calculateETA(
         context,
         "${widget.reporterData.location!.coordinates![1]},${widget.reporterData.location!.coordinates![0]}",
@@ -358,7 +361,7 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
                           ),
                         );
                       },
-                      icon: Icon(FeatherIcons.mapPin))
+                      icon: const Icon(FeatherIcons.mapPin))
                 ],
               ),
               AppSpaces.height16,
@@ -370,7 +373,8 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
                   source: widget.reporterData.locationName ?? ""),
               AppSpaces.height16,
               const Text("Live communication"),
-              _buildChatAndCallRow(context, user, locationData, callPro),
+              _buildChatAndCallRow(
+                  context, user, locationData, callPro, profile),
               AppSpaces.height16,
               const Divider(),
               _buildTabBar(res),
@@ -386,18 +390,34 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
           color: AppColors.YELLOW, borderRadius: BorderRadius.circular(12)),
-      child:  Text("${pro.travelTimeText}",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+      child: Text("${pro.travelTimeText}",
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
     );
   }
 
-  Widget _buildChatAndCallRow(BuildContext context, dynamic user,
-      Map<String, dynamic> locationData, SetupProvider callPro) {
+  Widget _buildChatAndCallRow(
+      BuildContext context,
+      dynamic user,
+      Map<String, dynamic> locationData,
+      SetupProvider callPro,
+      ProfileProvider profile) {
     return Row(
       children: [
         Expanded(
-          child: TextFormWidget(textController, "", true,
-              hint: 'Chat with responders...'),
+          child: TextFormWidget(
+            textController,
+            "",
+            true,
+            hint: 'Chat with responders...',
+            onTap: () {
+              AppNavigationHelper.navigateToWidget(
+                  context,
+                  RespondeerChatScreen(
+                    recipientId: locationData['userID'],
+                    senderId: profile.currentUserProfile?.id ?? "",
+                  ));
+            },
+          ),
         ),
         AppSpaces.width8,
         _buildChatButton(),
@@ -464,16 +484,17 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
           height: 200, // Set a fixed height for the TabBarView
           child: TabBarView(
             controller: tabController,
-            children:  [
-              SingleChildScrollView(child: EmergencyInfoTabView()),
+            children: [
+              const SingleChildScrollView(child: EmergencyInfoTabView()),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                 Text("Name: ${widget.reporterData.user?.name ??""}"),
-                 AppSpaces.height16,
-                 Text("Phone number: ${widget.reporterData.user?.phoneNumber ??""}"),
-                 AppSpaces.height16,
-                 Text("Email: ${widget.reporterData.user?.email ??""}")
+                  Text("Name: ${widget.reporterData.user?.name ?? ""}"),
+                  AppSpaces.height16,
+                  Text(
+                      "Phone number: ${widget.reporterData.user?.phoneNumber ?? ""}"),
+                  AppSpaces.height16,
+                  Text("Email: ${widget.reporterData.user?.email ?? ""}")
                 ],
               ),
             ],

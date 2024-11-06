@@ -14,6 +14,7 @@ import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Utils/utils.dart';
+import 'package:resq_track/Views/Chat/user_chat.dart';
 import 'package:resq_track/Views/MapViews/map_view_with_cordinate.dart';
 import 'package:resq_track/Views/MapViews/map_with_polyline.dart';
 import 'package:resq_track/Widgets/back_arrow_button.dart';
@@ -122,6 +123,18 @@ class EmergencyInProgress extends StatelessWidget {
                                     "",
                                     true,
                                     hint: 'Chat with responders....',
+                                    onTap: () {
+
+                                      // print("----------${locationData['userId']}");
+                                      AppNavigationHelper.navigateToWidget(
+                                          context,
+                                          UserChatScreen(
+                                            recipientId: locationData['userId'],
+                                            senderId: profile
+                                                    .currentUserProfile?.id ??
+                                                "",
+                                          ));
+                                    },
                                   )),
                                   AppSpaces.width8,
                                   Padding(
@@ -138,19 +151,24 @@ class EmergencyInProgress extends StatelessWidget {
                                     child: InkWell(
                                       onTap: () {
                                         CallModel callModel = CallModel(
-                                          id: 'call_${UniqueKey().hashCode.toString()}',
-                                          callerId: user!.id,
-                                          callerName: user.name,
-                                          status: CallStatus.ringing.name,
-                                          createAt: DateTime.now()
-                                              .microsecondsSinceEpoch,
-                                          receiverId: locationData['userId'],
-                                          receiverName: locationData['name'],
-                                          current: true
-                                        );
-                                            callPro.fireVideoCall(context, callModel: callModel).then((val){
-                                              AppNavigationHelper.navigateToWidget(context, const AgoraMyApp()); //CallScreen(isReceiver: false, callModel: callModel));
-                                            });
+                                            id:
+                                                'call_${UniqueKey().hashCode.toString()}',
+                                            callerId: user!.id,
+                                            callerName: user.name,
+                                            status: CallStatus.ringing.name,
+                                            createAt: DateTime.now()
+                                                .microsecondsSinceEpoch,
+                                            receiverId: locationData['userId'],
+                                            receiverName: locationData['name'],
+                                            current: true);
+                                        callPro
+                                            .fireVideoCall(context,
+                                                callModel: callModel)
+                                            .then((val) {
+                                          AppNavigationHelper.navigateToWidget(
+                                              context,
+                                              const AgoraMyApp()); //CallScreen(isReceiver: false, callModel: callModel));
+                                        });
                                       },
                                       child: CircleAvatar(
                                           backgroundColor:

@@ -99,16 +99,25 @@ class _MapWithPointersState extends State<MapWithPointers> {
       child: ValueListenableBuilder(
         valueListenable: isShowList,
         builder: (context, show, _) {
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildActiveEmergenciesHeader(show),
-                if (show) _buildEmergencyList(activeEmergencyData),
-                AppSpaces.height20,
-                _buildPerformanceMetrics(profile, responderPro),
-              ],
-            ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildActiveEmergenciesHeader(show),
+        Text("${activeEmergencyData.length} active emergencies", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+
+             Expanded(
+               child: SingleChildScrollView(
+                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                     if (show) _buildEmergencyList(activeEmergencyData),
+                  AppSpaces.height20,
+                  _buildPerformanceMetrics(profile, responderPro),
+                  ],
+                 ),
+               ),
+             )
+            ],
           );
         },
       ),
@@ -159,7 +168,6 @@ class _MapWithPointersState extends State<MapWithPointers> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("${activeEmergencyData.length} active emergencies", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
         AppSpaces.height16,
         Column(
           children: List.generate(activeEmergencyData.length, (index) {
@@ -231,7 +239,7 @@ class _MapWithPointersState extends State<MapWithPointers> {
           children: [
             CircleAvatar(
               backgroundColor: color,
-              radius: 15,
+              radius: 25,
               child: SvgPicture.asset('assets/icons/$icon.svg'),
             ),
             const SizedBox(width: 16), // Improved spacing
