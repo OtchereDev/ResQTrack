@@ -12,6 +12,7 @@ import 'package:resq_track/Model/Request/emergency_request_body.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Utils/Loaders/loader_utils.dart';
+import 'package:resq_track/Utils/utils.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
 import 'package:resq_track/Views/Home/index.dart';
 import 'package:resq_track/Views/MapViews/map_view.dart';
@@ -66,7 +67,7 @@ class SosPage extends StatelessWidget {
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10)),
-                                child: const MapScreen(),
+                                child:  MapScreen(height: Utils.screenHeight(context) * 0.5,),
                               ),
                               AppSpaces.height20,
                               textHeader(

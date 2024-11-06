@@ -20,6 +20,7 @@ import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Provider/Util/util_provider.dart';
 import 'package:resq_track/Services/Firbase/home_api.dart';
+import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Services/fcm/notification.dart';
 import 'package:resq_track/Services/fcm/notification_service.dart';
 import 'package:resq_track/Views/Intro/init_screen.dart';
@@ -70,6 +71,7 @@ class MyApp extends StatelessWidget {
                 create: (_) => MapProvider()..initializeMap(context)),
             ChangeNotifierProvider(create: (_) => CallProvider()),
             ChangeNotifierProvider(create: (_) => ChatProvider()),
+        Provider<RequestApi>(create: (_) => RequestApi()),
             ChangeNotifierProvider(create: (_) => ResponderProvider()),
             ChangeNotifierProvider(create: (_) => ProfileProvider(context)),
             ChangeNotifierProvider(create: (_) {

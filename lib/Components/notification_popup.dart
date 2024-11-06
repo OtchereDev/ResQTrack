@@ -8,7 +8,7 @@ notificationDialog(
     {required String title, required String message, VoidCallback? onTap}) {
   BotToast.showNotification(
       backgroundColor: AppColors.WHITE,
-      contentPadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       leading: (cancel) => SizedBox.fromSize(
           size: const Size(40, 40),
           child:CircleAvatar(backgroundColor: AppColors.RED.withOpacity(0.2),child: Padding(

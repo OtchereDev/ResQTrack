@@ -6,6 +6,7 @@ import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Map/map_provider.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
+import 'package:resq_track/Utils/utils.dart';
 import 'package:resq_track/Views/Home/Emergency/ActiveEmergency/emergency_in_progress.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
 import 'package:resq_track/Views/MapViews/map_view.dart';
@@ -103,12 +104,13 @@ class _ActiveEmergencyPageState extends State<ActiveEmergencyPage> {
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                             child: MapScreenWidthCordinate(
+                                              showButton: false,
                                               latLng: LatLng(
                                                   locationData['latitude'],
                                                   locationData['longitude']),
                                             ),
                                           )
-                                        : const MapScreen(),
+                                        :  MapScreen(height: Utils.screenHeight(context),),
                                   ),
                                   // Transparent GestureDetector over the map
                                   Positioned.fill(

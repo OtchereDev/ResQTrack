@@ -17,14 +17,13 @@ import 'package:resq_track/Model/Response/call_model.dart';
 import 'package:resq_track/Provider/Call/call_provider.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
-import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Responder/Emergency/responder_emergency_details.dart';
+import 'package:resq_track/Responder/Emergency/responder_to_emergency.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
-import 'package:resq_track/Utils/Dialogs/notifications.dart';
-import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Utils/utils.dart';
+import 'package:resq_track/Views/MapViews/map_view.dart';
 import 'package:resq_track/Widgets/default_circle_image.dart';
 import 'package:resq_track/Widgets/user_info_header.dart';
 
@@ -34,455 +33,181 @@ class MapWithPointers extends StatefulWidget {
 }
 
 class _MapWithPointersState extends State<MapWithPointers> {
-  GoogleMapController? _controller;
-
-  final isShowList = ValueNotifier(true);
+  final ValueNotifier<bool> isShowList = ValueNotifier(true);
 
   @override
   void initState() {
     super.initState();
-    initAgora();
-    // Safely fetching current location using context.read
-    context.read<LocationProvider>().getCurrentLocation();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      var pro = context.read<ResponderProvider>();
-      Future.delayed(const Duration(seconds: 0), () {
-        pro.getDashboardData(context);
-      });
+      context.read<LocationProvider>().getCurrentLocation();
+      context.read<ResponderProvider>().getDashboardData(context);
     });
-  }
-
-  int? _remoteUid;
-  bool _localUserJoined = false;
-  late RtcEngine _engine;
-
-  Future<void> initAgora() async {
-    // retrieve permissions
-    await [Permission.microphone, Permission.camera].request();
-
-    //create the engine
-    _engine = createAgoraRtcEngine();
-    await _engine.initialize(const RtcEngineContext(
-      appId: agoraAppId,
-      channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
-    ));
-
-    _engine.registerEventHandler(
-      RtcEngineEventHandler(
-        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-          debugPrint("local user ${connection.localUid} joined");
-          setState(() {
-            _localUserJoined = true;
-          });
-        },
-        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-          debugPrint("remote user $remoteUid joined");
-          setState(() {
-            _remoteUid = remoteUid;
-          });
-        },
-        onUserOffline: (RtcConnection connection, int remoteUid,
-            UserOfflineReasonType reason) {
-          debugPrint("remote user $remoteUid left channel");
-          setState(() {
-            _remoteUid = null;
-          });
-        },
-        onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
-          debugPrint(
-              '[onTokenPrivilegeWillExpire] connection: ${connection.toJson()}, token: $token');
-        },
-      ),
-    );
-
-    await _engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
-    await _engine.enableVideo();
-    await _engine.startPreview();
-
-    await _engine.joinChannel(
-      token: agoraTestToken,
-      channelId: agoraTestChannelName,
-      uid: 0,
-      options: const ChannelMediaOptions(),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    _dispose();
-  }
-
-  Future<void> _dispose() async {
-    await _engine.leaveChannel();
-    await _engine.release();
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<LocationProvider>();
     final profile = context.read<ProfileProvider>();
-    var callProvider = Provider.of<CallProvider>(context);
-    var responderPro = Provider.of<ResponderProvider>(context);
-    // var activeEmergencyData;
-
-    // print("========${profile.currentUserProfile?.id}");
+    // final responderPro = context.watch<ResponderProvider>();
 
     return Scaffold(
       body: (provider.latLong['lat'] == 0.0 && provider.latLong['lng'] == 0.0)
           ? const Center(child: CircularProgressIndicator())
-          : StreamBuilder<dynamic>(
-              stream: FirebaseFirestore.instance
-                  .collection('Calls')
-                  .where('receiverId',
-                      isEqualTo: profile.currentUserProfile?.id ?? "")
-                  .where("status", isEqualTo: "ringing")
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                  var callData =
-                      snapshot.data!.docs.first.data() as Map<String, dynamic>;
+          : Stack(
+              children: [
+                MapScreen(height: Utils.screenHeight(context) * 0.5),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Consumer<RequestApi>(
+                    builder: (context, api, _) {
+                      return StreamBuilder<List<Map<String, dynamic>>>(
+                        stream: api.getResponderActiveEmergency("CONNECTING", profile.currentUserProfile?.id ?? ""),
+                        builder: (context, snapshot) {
+                          // if (snapshot.connectionState == ConnectionState.waiting) return SizedBox.shrink();
+                          if (snapshot.hasError) return Center(child: Text("Error: ${snapshot.error}"));
 
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    callProvider.listenToCallStatus(
-                      callModel: CallModel.fromJson(callData),
-                      context: context,
-                      isReceiver: true,
-                    );
+                          final activeEmergencyData = snapshot.data ?? [];
 
-                    callProvider.playContactingRing(isCaller: false);
-                  });
-                  if (callProvider.callStatus ==
-                      "ErrorUnAnsweredVideoChatState") {
-                    NotificationUtils.showToast(context,
-                        message:
-                            'Unexpected Error: ${callProvider.callStatus}');
-                  }
-                  if (callProvider.callStatus ==
-                      "DownCountCallTimerFinishState") {
-                    if (callProvider.remoteUid == null) {
-                      callProvider.updateCallStatusToUnAnswered(
-                          CallModel.fromJson(callData).id);
-                    }
-                  }
-                  if (callProvider.callStatus == "AgoraRemoteUserJoinedEvent") {
-                    callProvider.countDownTimer?.cancel();
-                  }
-                  if (callProvider.callStatus == "CallNoAnswerState") {
-                    NotificationUtils.showToast(context,
-                        message: 'No response!');
-                    Navigator.pop(context);
-                  }
-                  if (callProvider.callStatus == "CallCancelState") {
-                    NotificationUtils.showToast(context,
-                        message: 'Caller cancelled the call!');
+                          // Show dialog once if an emergency is found
+                          _showEmergencyAlertDialogOnce(activeEmergencyData);
 
-                    Navigator.pop(context);
-                  }
-                  if (callProvider.callStatus == "CallRejectState") {
-                    NotificationUtils.showToast(context,
-                        message: 'Receiver rejected the call!');
-                    // Navigator.pop(context);
-                  }
-                  if (callProvider.callStatus == "CallEndState") {
-                    NotificationUtils.showToast(context,
-                        message: 'Call ended!');
-                    Navigator.pop(context);
-                  }
-
-                  return ModalProgressHUD(
-                    inAsyncCall: callProvider.isCalling,
-                    child: WillPopScope(
-                      onWillPop: () async => false,
-                      child: Scaffold(
-                        body: Stack(
-                          alignment: AlignmentDirectional.center,
-                          children: [
-                            _remoteUid == null
-                                ? !_localUserJoined
-                                    ? Container(
-                                        color: Colors.red,
-                                        child: AgoraVideoView(
-                                          controller: VideoViewController(
-                                            rtcEngine: _engine,
-                                            canvas: const VideoCanvas(uid: 0),
-                                          ),
-                                        ),
-                                      )
-                                    : _buildAvatarContainer(
-                                        CallModel.fromJson(callData))
-                                : Stack(
-                                    children: [
-                                      Center(
-                                          child: _remoteVideo(
-                                              remoteUserId: _remoteUid!,
-                                              channelId:
-                                                  CallModel.fromJson(callData)
-                                                      .channelName!,
-                                              engine: _engine)),
-                                      Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: SizedBox(
-                                            width: 122,
-                                            height: 219.0,
-                                            child: AgoraVideoView(
-                                              controller: VideoViewController(
-                                                rtcEngine: _engine,
-                                                canvas:
-                                                    const VideoCanvas(uid: 0),
-                                              ),
-                                            )),
-                                      ),
-                                    ],
-                                  ),
-                            _buildUserInfoAndControls(callProvider, true,
-                                CallModel.fromJson(callData), onTap: () {
-                              _dispose();
-                            }),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  return Stack(
-                    children: [
-                      Consumer<ReportProvider>(
-                        builder: (context, report, _) {
-                          if (report.isLoading) return LoadingPage();
-                          if (report.emModel == null ||
-                              report.emModel.isEmpty) {
-                            // Handle case where no emergency data exists
-                            return GoogleMap(
-                              initialCameraPosition: CameraPosition(
-                                target: LatLng(provider.latLong['lat'],
-                                    provider.latLong['lng']),
-                                zoom: 17,
-                              ),
-                              onMapCreated: (controller) {
-                                _controller = controller;
-                              },
-                            );
-                          }
-                          return GoogleMap(
-                            initialCameraPosition: CameraPosition(
-                              target: LatLng(report.emModel[2].latitude,
-                                  report.emModel[2].longitude),
-                              zoom: 17,
-                            ),
-                            markers: _createMarkers(report.emModel),
-                            onMapCreated: (controller) {
-                              _controller = controller;
-                            },
-                          );
+                          return _buildBottomContainer(context, activeEmergencyData);
                         },
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: StreamBuilder<List<Map<String, dynamic>>>(
-                            stream: RequestApi().getResponderActiveEmergency(
-                                "CONNECTING",
-                                profile.currentUserProfile?.id ?? ""),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-
-                              if (snapshot.hasError) {
-                                return Center(
-                                    child: Text("Error: ${snapshot.error}"));
-                              }
-
-                              // print(
-                              //     "===========${snapshot.data}===============");
-
-                              // Active Emergency Data
-                              final activeEmergencyData = snapshot.data!;
-                              var shared_prefs_manager = SharedPrefManager();
-
-                              WidgetsBinding.instance
-                                  .addPostFrameCallback((_) async {
-                                bool viewOnce =
-                                    await shared_prefs_manager.getViewAlert();
-                                if (activeEmergencyData.isNotEmpty &&
-                                    activeEmergencyData[0]['status'] ==
-                                        "CONNECTING") {
-                                  if (!viewOnce) {
-                                    Future.delayed(Duration(seconds: 1), () {
-                                      notificationDialog(
-                                          onTap: () {
-                                            shared_prefs_manager.setViewNewAlert(true);
-                                            AppNavigationHelper
-                                                .navigateToWidget(
-                                                    context,
-                                                    ResponderEmergencyDetails(
-                                                      emergencyData:
-                                                          activeEmergencyData[
-                                                              0],
-                                                    ));
-                                          },
-                                          title: 'New Emergency Alert',
-                                          message:
-                                              "New Emergency with ID ${activeEmergencyData[0]['emergency_id']} and severity is ${activeEmergencyData[0]['severity']}, Please Accept Now");
-                                    });
-                                  }
-                                }
-                              });
-
-                              return Container(
-                                padding: const EdgeInsets.only(
-                                    top: 10, left: 20, right: 20),
-                                width: double.infinity,
-                                height: Utils.screenHeight(context) * 0.5,
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(30),
-                                      topRight: Radius.circular(30)),
-                                  color: AppColors.WHITE,
-                                ),
-                                child: ValueListenableBuilder(
-                                    valueListenable: isShowList,
-                                    builder: (context, show, _) {
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              isShowList.value = !show;
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const Text(
-                                                  "Active emergencies",
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                                IconButton(
-                                                    onPressed: () {
-                                                      isShowList.value = !show;
-                                                    },
-                                                    icon: Icon(show
-                                                        ? Icons
-                                                            .keyboard_arrow_down_rounded
-                                                        : Icons
-                                                            .keyboard_arrow_up_outlined))
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: SingleChildScrollView(
-                                              child: Consumer<ReportProvider>(
-                                                  builder:
-                                                      (context, report, _) {
-                                                return Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      "${activeEmergencyData.length} active emergencies",
-                                                      style: const TextStyle(
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.w500),
-                                                    ),
-                                                    AppSpaces.height16,
-                                                    show
-                                                        ? Column(
-                                                            children: List.generate(
-                                                                activeEmergencyData
-                                                                    .length,
-                                                                (index) {
-                                                              return AcitivityTile(
-                                                                activeEmergency:
-                                                                    activeEmergencyData[
-                                                                        index],
-                                                                onTap: () {
-                                                                  AppNavigationHelper
-                                                                      .navigateToWidget(
-                                                                          context,
-                                                                          ResponderEmergencyDetails(
-                                                                            emergencyData:
-                                                                                activeEmergencyData[index],
-                                                                          ));
-                                                                },
-                                                              );
-                                                            }),
-                                                          )
-                                                        : const SizedBox
-                                                            .shrink(),
-                                                    AppSpaces.height20,
-                                                    const Text(
-                                                      "Performance Metrics",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.w500),
-                                                    ),
-                                                    AppSpaces.height16,
-                                                    _performanceMetricTile(
-                                                        "Incident Outcome",
-                                                        "Arrests",
-                                                        "user_hands",
-                                                        "${responderPro.homeMetrics?.numberOfArrest ?? "Loading..."}",
-
-                                                        const Color(0xffFF1E0F)
-                                                            .withOpacity(0.2),
-                                                        has2: true,
-                                                        value2: "${responderPro.homeMetrics?.accumulatedTurnaroundTime ?? "Loading..."}",
-                                                     
-                                                        onTap: () {}),
-                                                    AppSpaces.height8,
-                                                    _performanceMetricTile(
-                                                      "Response Time",
-                                                      "Arrests",
-                                                      "clock1",
-                                                      "${responderPro.homeMetrics?.accumulatedResponseTime ?? "Loading..."} min",
-                                                      const Color(0xff0085FF)
-                                                          .withOpacity(0.2),
-                                                      has2: false,
-                                                    ),
-                                                    AppSpaces.height8,
-                                                    _performanceMetricTile(
-                                                      "Average On-scene Time",
-                                                      "Arrests",
-                                                      "pointer",
-                                                      "${responderPro.homeMetrics?.accumulatedTurnaroundTime ?? "Loading..."} min",
-                                                      const Color(0xff7A71D1)
-                                                          .withOpacity(0.2),
-                                                      has2: false,
-                                                    ),
-                                                    AppSpaces.height20,
-                                                  ],
-                                                );
-                                              }),
-                                            ),
-                                          )
-                                        ],
-                                      );
-                                    }),
-                              );
-                            }),
-                      )
-                    ],
-                  );
-                }
-              }),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
+  // Separate function to build the bottom container
+  Widget _buildBottomContainer(BuildContext context, List<Map<String, dynamic>> activeEmergencyData) {
+    final responderPro = context.read<ResponderProvider>();
+    final profile = context.read<ProfileProvider>();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      width: double.infinity,
+      height: Utils.screenHeight(context) * 0.5,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        color: AppColors.WHITE,
+      ),
+      child: ValueListenableBuilder(
+        valueListenable: isShowList,
+        builder: (context, show, _) {
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildActiveEmergenciesHeader(show),
+                if (show) _buildEmergencyList(activeEmergencyData),
+                AppSpaces.height20,
+                _buildPerformanceMetrics(profile, responderPro),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Performance metrics section
+  Widget _buildPerformanceMetrics(ProfileProvider profile, ResponderProvider responderPro) {
+    return Column(
+      children: [
+        profile.currentUserProfile?.type == "POLICE"
+            ? _performanceMetricTile("Incident Outcome", "Arrests", "user_hands", responderPro.homeMetrics?.numberOfArrest.toString() ?? "0",
+                const Color(0xffFF1E0F).withOpacity(0.2),
+                has2: true, desc_2: "Escape", value2: responderPro.homeMetrics?.numberOfEscape.toString() ?? "0", onTap: () {})
+            : _performanceMetricTile("Incident Outcome", "Fire Output", "user_hands", responderPro.homeMetrics?.numberOfFirePutOut.toString() ?? "0",
+                const Color(0xffFF1E0F).withOpacity(0.2),
+                has2: true, desc_2: "Fire Not Putout", value2: responderPro.homeMetrics?.numberOfFireNotPutOut.toString() ?? "0", onTap: () {}),
+        AppSpaces.height8,
+        _performanceMetricTile("Response Time", "Arrests", "clock1", "${responderPro.homeMetrics?.accumulatedResponseTime ?? "0"} min",
+            const Color(0xff0085FF).withOpacity(0.2),
+            has2: false),
+        AppSpaces.height8,
+        _performanceMetricTile("Average On-scene Time", "Arrests", "pointer", "${responderPro.homeMetrics?.accumulatedTurnaroundTime ?? "0"} min",
+            const Color(0xff7A71D1).withOpacity(0.2),
+            has2: false),
+      ],
+    );
+  }
+
+  // Active Emergencies header
+  Widget _buildActiveEmergenciesHeader(bool show) {
+    return GestureDetector(
+      onTap: () => isShowList.value = !show,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text("Active emergencies", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          IconButton(
+              onPressed: () => isShowList.value = !show,
+              icon: Icon(show ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_up_outlined)),
+        ],
+      ),
+    );
+  }
+
+  // Emergency list
+  Widget _buildEmergencyList(List<Map<String, dynamic>> activeEmergencyData) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("${activeEmergencyData.length} active emergencies", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+        AppSpaces.height16,
+        Column(
+          children: List.generate(activeEmergencyData.length, (index) {
+            return AcitivityTile(
+              activeEmergency: activeEmergencyData[index],
+              onTap: () => _onEmergencyTileTap(activeEmergencyData[index]),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  void _onEmergencyTileTap(Map<String, dynamic> emergencyData) {
+    final responderPro = context.read<ResponderProvider>();
+    responderPro.getEmergencyReportById(context, emergencyData['emergency_id']);
+    if (emergencyData['status'] == "ON-ROUTE" && responderPro.emergencyRes.emergency?.id != null) {
+      AppNavigationHelper.navigateToWidget(context, RespondToEmergency(reporterData: responderPro.emergencyRes.emergency!));
+    }
+    if (emergencyData['status'] == "CONNECTING") {
+      AppNavigationHelper.navigateToWidget(context, ResponderEmergencyDetails(emergencyData: emergencyData));
+    }
+  }
+
+  void _showEmergencyAlertDialogOnce(List<Map<String, dynamic>> activeEmergencyData) async {
+    var sharedPrefsManager = SharedPrefManager();
+    bool viewOnce = await sharedPrefsManager.getViewAlert();
+    if (activeEmergencyData.isNotEmpty && activeEmergencyData[0]['status'] == "CONNECTING" && !viewOnce) {
+      sharedPrefsManager.setViewNewAlert(true);
+      Future.delayed(Duration(seconds: 1), () {
+        notificationDialog(
+          onTap: () {
+            AppNavigationHelper.navigateToWidget(
+              context,
+              ResponderEmergencyDetails(emergencyData: activeEmergencyData[0]),
+            );
+          },
+          title: 'New Emergency Alert',
+          message: "New Emergency with ID ${activeEmergencyData[0]['emergency_id']} and severity is ${activeEmergencyData[0]['severity']}, Please Accept Now",
+        );
+      });
+    }
+  }
+}
+
+  
+  
+  
   Widget _performanceMetricTile(
       String title, String desc_1, String icon, String value1, Color color,
       {String? desc_2,
@@ -528,7 +253,7 @@ class _MapWithPointersState extends State<MapWithPointers> {
                     children: [
                       _buildStatColumn(desc_1, value1, has2),
                       has2
-                          ? _buildStatColumn("Another Stat", "150", has2)
+                          ? _buildStatColumn(desc_2 ?? "", value2 ?? "", has2)
                           : const SizedBox
                               .shrink(), // Adjust second stat if needed
                     ],
@@ -570,60 +295,7 @@ class _MapWithPointersState extends State<MapWithPointers> {
     );
   }
 
-  Set<Marker> _createMarkers(List<EmergencyMod> emergencies) {
-    return emergencies.map((emergency) {
-      return Marker(
-        markerId: MarkerId(emergency.name),
-        position: LatLng(emergency.latitude, emergency.longitude),
-        infoWindow: InfoWindow(
-          title: emergency.name,
-          onTap: () {
-            _showShopDetails(emergency);
-          },
-        ),
-        onTap: () {
-          _showShopDetails(emergency);
-        },
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueBlue), // Custom marker color
-      );
-    }).toSet();
-  }
-
-  void _showShopDetails(EmergencyMod emergency) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16.0),
-          height: 200, // Adjust height as needed
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                emergency.name,
-                style:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text('Latitude: ${emergency.latitude}'),
-              Text('Longitude: ${emergency.longitude}'),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Close'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
+ 
 class AcitivityTile extends StatelessWidget {
   final dynamic activeEmergency;
   final VoidCallback? onTap;

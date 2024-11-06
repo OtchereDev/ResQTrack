@@ -1,5 +1,7 @@
 
 
+import 'package:resq_track/Model/Response/user_response.dart';
+
 class ResponderRequestModel {
     int? status;
     Emergency? emergency;
@@ -23,7 +25,7 @@ class ResponderRequestModel {
 class Emergency {
     Location? location;
     String? id;
-    String? user;
+    User? user;
     String? description;
     String? status;
     String? emergencyType;
@@ -59,7 +61,7 @@ class Emergency {
     factory Emergency.fromJson(Map<String, dynamic> json) => Emergency(
         location: Location.fromJson(json["location"]),
         id: json["_id"],
-        user: json["user"],
+        user: User.fromJson(json["user"]),
         description: json["description"],
         status: json["status"],
         emergencyType: json["emergencyType"],
@@ -77,7 +79,7 @@ class Emergency {
     Map<String, dynamic> toJson() => {
         "location": location?.toJson(),
         "_id": id,
-        "user": user,
+        "user": user?.toJson(),
         "description": description,
         "status": status,
         "emergencyType": emergencyType,

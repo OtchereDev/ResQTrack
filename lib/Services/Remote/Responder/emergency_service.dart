@@ -49,6 +49,27 @@ class ResponderService with AuthBaseRepository {
     return responseMap;
   }
 
+  Future completeRide(context, data) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+
+    await patch(context, url: "$kBaseUrl/emergency/complete-emergency/$data")
+        .then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = json.decode(response.body);
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
+
+
   // @override
   Future getResponderDashboard(context, data) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
@@ -209,6 +230,33 @@ class ResponderService with AuthBaseRepository {
     dynamic responseMap = {"status": false, "message": "", "data": null};
     await post(context, url: "$kBaseUrl/emergency/$id/responder-arrived")
         .then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = json.decode(response.body);
+        } else if (response.statusCode == 401) {
+          Provider.of<ProfileProvider>(context, listen: false).logout(context);
+          AppNavigationHelper.setRootOldWidget(context, GetStartedPage());
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
+
+
+   Future getETA(context, String apiKey, String origin, String destination) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+    final url =(
+      'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&mode=driving&departure_time=now&key=$apiKey');
+    await get(
+      context,
+      url:url,
+    ).then((response) {
       if (response != null) {
         var dataResponse = json.decode(response.body);
         if (response.statusCode == 200) {

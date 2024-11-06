@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Provider/Call/new_call.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
+import 'package:resq_track/Responder/Account/responder_account_page.dart';
 import 'package:resq_track/Responder/Home/responder_homee_page.dart';
-import 'package:resq_track/Responder/Home/responder_profile_info.dart';
+import 'package:resq_track/Responder/Account/responder_profile_info.dart';
 import 'package:resq_track/Responder/RespondeMapView/map_with_pointers.dart';
 
 class ResponderBaseHomePage extends StatefulWidget {
@@ -39,7 +40,7 @@ class _ResponderBaseHomePageState extends State<ResponderBaseHomePage> {
     List<Widget> _widgetOptions = <Widget>[
       MapWithPointers(),
       const Center(child: Text("Training Model")),
-      const ResponderProfile(),
+      const ResponderAccountPage(),
     ];
     return Scaffold(
       body: Center(child: _widgetOptions.elementAt(_selectedIndex)),

@@ -7,7 +7,6 @@ import 'package:resq_track/Components/textformfield.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Core/app_constants.dart';
 import 'package:resq_track/Model/Response/call_model.dart';
-import 'package:resq_track/Provider/Call/call_provider.dart';
 import 'package:resq_track/Provider/Call/new_call.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Map/map_provider.dart';
@@ -15,7 +14,6 @@ import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Utils/utils.dart';
-import 'package:resq_track/Views/Call/video_page.dart';
 import 'package:resq_track/Views/MapViews/map_view_with_cordinate.dart';
 import 'package:resq_track/Views/MapViews/map_with_polyline.dart';
 import 'package:resq_track/Widgets/back_arrow_button.dart';
@@ -65,6 +63,7 @@ class EmergencyInProgress extends StatelessWidget {
                 return Stack(
                   children: [
                     MapScreenWidthCordinate(
+                      showButton: false,
                       latLng: LatLng(
                           locationData['latitude'], locationData['longitude']),
                     ),

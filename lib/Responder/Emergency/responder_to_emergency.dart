@@ -18,6 +18,7 @@ import 'package:resq_track/Provider/Call/new_call.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Map/map_provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
+import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Responder/Emergency/responder_emergency_details.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
@@ -46,13 +47,11 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
   void initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
-    if(mounted){
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      initAgora();
-    });
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        initAgora();
+      });
     }
-
   }
 
   @override
@@ -130,8 +129,8 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
     var callProvider = Provider.of<CallProvider>(context);
     return Scaffold(
       body: StreamBuilder<dynamic>(
-        stream:
-            RequestApi().getReporterlocation(widget.reporterData.user ?? ""),
+        stream: RequestApi()
+            .getReporterlocation(widget.reporterData.user?.id ?? ""),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -277,6 +276,7 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
                         return Stack(
                           children: [
                             MapScreenWidthCordinate(
+                              showButton: false,
                               latLng: LatLng(
                                   widget.reporterData.location!.coordinates![0],
                                   widget
@@ -319,6 +319,13 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
 
   Widget _buildBottomContainer(BuildContext context, dynamic user,
       Map<String, dynamic> locationData, SetupProvider callPro) {
+    var loc = context.read<LocationProvider>();
+    var res =  context.watch<ResponderProvider>();
+    res.calculateETA(
+        context,
+        "${widget.reporterData.location!.coordinates![1]},${widget.reporterData.location!.coordinates![0]}",
+        "${loc.currentPosition?.latitude},${loc.currentPosition?.longitude}");
+
     return Positioned(
       bottom: 0,
       child: Container(
@@ -339,20 +346,25 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
                 children: [
                   const Text("Responding to emergency...",
                       style: TextStyle(fontWeight: FontWeight.w600)),
-                      IconButton(onPressed: (){
-                        AppNavigationHelper.navigateToWidget(context, MapScreenWidthCordinate(
-                              latLng: LatLng(
-                                  widget.reporterData.location!.coordinates![1],
-                                  widget
-                                      .reporterData.location!.coordinates![0]),
-                            ),);
-                      }, icon: Icon(FeatherIcons.mapPin))
+                  IconButton(
+                      onPressed: () {
+                        AppNavigationHelper.navigateToWidget(
+                          context,
+                          MapScreenWidthCordinate(
+                            showButton: true,
+                            latLng: LatLng(
+                                widget.reporterData.location!.coordinates![1],
+                                widget.reporterData.location!.coordinates![0]),
+                          ),
+                        );
+                      },
+                      icon: Icon(FeatherIcons.mapPin))
                 ],
               ),
               AppSpaces.height16,
               const Text("Arriving in:"),
               AppSpaces.height16,
-              _buildArrivalTime(),
+              _buildArrivalTime(res),
               AppSpaces.height16,
               MyLocationAndDestinationCard(
                   source: widget.reporterData.locationName ?? ""),
@@ -361,7 +373,7 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
               _buildChatAndCallRow(context, user, locationData, callPro),
               AppSpaces.height16,
               const Divider(),
-              _buildTabBar(),
+              _buildTabBar(res),
             ],
           ),
         ),
@@ -369,12 +381,12 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
     );
   }
 
-  Widget _buildArrivalTime() {
+  Widget _buildArrivalTime(ResponderProvider pro) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
           color: AppColors.YELLOW, borderRadius: BorderRadius.circular(12)),
-      child: const Text("02:34 Mins",
+      child:  Text("${pro.travelTimeText}",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
     );
   }
@@ -434,7 +446,7 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(ResponderProvider pro) {
     return Column(
       children: [
         TabBar(
@@ -452,9 +464,18 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
           height: 200, // Set a fixed height for the TabBarView
           child: TabBarView(
             controller: tabController,
-            children: const [
+            children:  [
               SingleChildScrollView(child: EmergencyInfoTabView()),
-              Center(child: Text("Victim Details Content")),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                 Text("Name: ${widget.reporterData.user?.name ??""}"),
+                 AppSpaces.height16,
+                 Text("Phone number: ${widget.reporterData.user?.phoneNumber ??""}"),
+                 AppSpaces.height16,
+                 Text("Email: ${widget.reporterData.user?.email ??""}")
+                ],
+              ),
             ],
           ),
         ),
@@ -557,8 +578,7 @@ Widget _buildUserInfoAndControls(
             ? Expanded(
                 child: isReceiver
                     ? const Text('',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: 39.0))
+                        style: TextStyle(color: Colors.white, fontSize: 39.0))
                     : const Text('Contacting..',
                         style: TextStyle(color: Colors.white, fontSize: 39.0)),
               )

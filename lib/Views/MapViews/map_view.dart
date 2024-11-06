@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
+import 'package:resq_track/Utils/utils.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final double height;
+  const MapScreen({super.key, required this.height});
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -55,26 +57,29 @@ class _MapScreenState extends State<MapScreen> {
           });
         }
     
-        return GoogleMap(
-          myLocationButtonEnabled: false,
-          initialCameraPosition: CameraPosition(
-            target: currentLocation,
-            zoom: 17,
-          ),
-          markers: {
-            Marker(
-              markerId: MarkerId('currentLocation'),
-              position: currentLocation,
+        return SizedBox(
+          height: widget.height, 
+          child: GoogleMap(
+            myLocationButtonEnabled: false,
+            initialCameraPosition: CameraPosition(
+              target: currentLocation,
+              zoom: 17,
             ),
-          },
-          buildingsEnabled: true,
-          indoorViewEnabled: true,
-          trafficEnabled: true,
-          onMapCreated: (GoogleMapController controller) {
-            // Move the camera to the user's current location
-            mapController = controller;
-          },
-          
+            markers: {
+              Marker(
+                markerId: MarkerId('currentLocation'),
+                position: currentLocation,
+              ),
+            },
+            buildingsEnabled: true,
+            indoorViewEnabled: true,
+            trafficEnabled: true,
+            onMapCreated: (GoogleMapController controller) {
+              // Move the camera to the user's current location
+              mapController = controller;
+            },
+            
+          ),
         );
       },
     );

@@ -4,7 +4,10 @@ const String kBaseUrl ="http://ec2-18-224-20-223.us-east-2.compute.amazonaws.com
 // "https://fundpeck.fly.dev/api/v1";
 
 
-const String kGoogleApiKey ="AIzaSyDAkLoOaKCdB6gn_C4CRJ8G9jKJu5X9foQ";
+const String kGoogleApiKey = "AIzaSyDDG9vbTjy9bmYNRZjiJqCGiGBpXAkDzwI"; ///"AIzaSyDAkLoOaKCdB6gn_C4CRJ8G9jKJu5X9foQ";
+
+
+const newApiKey = "AIzaSyDDG9vbTjy9bmYNRZjiJqCGiGBpXAkDzwI";
 
 //  "AIzaSyC2FuBWrtkaM3sjZmZ2xRJsPCQZD6bAjAA";
 const fcmKey = 'AAAA8hfeYZKXDOOmZ6OR8Cd70oZdKsD2Ao44YfuXBFgocNOH5gp2'; //replace with your Fcm key

@@ -6,11 +6,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
+import 'package:resq_track/Components/image_viewer.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Model/Response/emergency_response.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Utils/formatters.dart';
+import 'package:resq_track/Utils/utils.dart';
 import 'package:resq_track/Views/Home/Emergency/ActiveEmergency/emergency_in_progress.dart';
 import 'package:resq_track/Views/Home/RecentPage/recents.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
@@ -87,6 +89,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                 //             ));
                               },
                               child: MapScreenWidthCordinate(
+                                showButton: false,
                                   latLng: LatLng(
                                       widget.emergency.location!.coordinates![0],
                                       widget.emergency.location!.coordinates![1]),
@@ -137,14 +140,24 @@ class _ReportDetailsState extends State<ReportDetails> {
                                     (index) {
                                   return Padding(
                                     padding: const EdgeInsets.only(right: 10.0),
-                                    child: SizedBox(
-                                      height: 100,
-                                      width: 130,
-                                      child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Image.network(
-                                              widget.emergency.photos?[index])),
+                                    child: GestureDetector(
+                                      onTap: (){
+                                        showDialog(context: context, builder: (context){
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal:20.0, vertical: 100),
+                                            child: ImageViewer(url: widget.emergency.photos?[index]),
+                                          );
+                                        });
+                                      },
+                                      child: SizedBox(
+                                        height: 100,
+                                        width: 130,
+                                        child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: ImageViewer(url: 
+                                                widget.emergency.photos?[index])),
+                                      ),
                                     ),
                                   );
                                 }),

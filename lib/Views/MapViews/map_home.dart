@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
+import 'package:resq_track/Utils/utils.dart';
 import 'package:resq_track/Views/Home/Emergency/ActiveEmergency/active_emergency_page.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
 import 'package:resq_track/Views/MapViews/map_view.dart';
@@ -36,7 +37,7 @@ class MapHomePage extends StatelessWidget {
               if (snapshot.data['status'] == "CONNECTING") {
                 return Stack(
                   children: [
-                    const MapScreen(),
+                     MapScreen(height: Utils.screenHeight(context),),
                     Align(
                         alignment: Alignment.center,
                         child: LottieBuilder.asset(
@@ -48,7 +49,7 @@ class MapHomePage extends StatelessWidget {
 
             return Stack(
               children: [
-                const MapScreen(),
+                 MapScreen(height: Utils.screenHeight(context) * 0.5,),
                 const Align(
                     alignment: Alignment.bottomCenter, child: HomeDialog()),
                 SafeArea(

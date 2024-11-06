@@ -40,7 +40,7 @@ class _HomeDialogState extends State<HomeDialog> {
     return Consumer<ReportProvider>(
       builder: (context, report, _) {
         return Container(
-          height: Utils.screenHeight(context) * 0.7,
+          height: Utils.screenHeight(context) * 0.5,
           padding: const EdgeInsets.only(left: 25,right: 25, top: 20),
           width: double.infinity,
           decoration: const BoxDecoration(

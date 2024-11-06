@@ -42,7 +42,6 @@ Stream<dynamic> filterEmergencyById(String emergencyId, String userName) {
 
 
 Stream<List<Map<String, dynamic>>> getResponderActiveEmergency(String status, String userID) {
-  debugPrint("-------$status-------------$userID-----------");
     CollectionReference emergencies = FirebaseFirestore.instance.collection(activeEmergency);
 
     // Create two queries for different statuses
@@ -81,8 +80,6 @@ Stream<List<Map<String, dynamic>>> getResponderActiveEmergency(String status, St
 
 
  Stream<dynamic> getResponderLocation(String responderId) {
-    debugPrint("-------------------------RESPONDER-------$responderId-----------Respond");
-
   CollectionReference respondersCollection =
       FirebaseFirestore.instance.collection('responders');  // Correct reference
   return respondersCollection
@@ -91,10 +88,6 @@ Stream<List<Map<String, dynamic>>> getResponderActiveEmergency(String status, St
       .snapshots()
       .map((querySnapshot) {
     var data;
-
-    debugPrint("-------------------------RESPONDER-------$querySnapshot-----------Respond");
-
-    // Check if any documents were found
     if (querySnapshot.docs.isNotEmpty) {
       querySnapshot.docs.forEach((doc) {
         // Safe access to document data

@@ -163,10 +163,38 @@ class SettingsPage extends StatelessWidget {
                             ),
                           ),
                           AppSpaces.height20,
-                          accountTile(title: 'Logout', onTap: (){
-                            context.read<ProfileProvider>().logout(context);
-                            AppNavigationHelper.setRootOldWidget(context, InitScreen());
-                          })
+                           Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                            color: const Color(0xffD0D5DD).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              onTap: (){
+                                profile.logout(context).then((v){
+                                  AppNavigationHelper.setRootOldWidget(context, InitScreen());
+                                });
+                              },
+                              contentPadding: EdgeInsets.zero,
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                child: SvgPicture.asset(
+                                  'assets/icons/logout.svg',
+                                  color: AppColors.RED,
+                                ),
+                              ),
+                              title: const Text(
+                                "Logout",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.RED),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                         ],
                       ),
                     ),

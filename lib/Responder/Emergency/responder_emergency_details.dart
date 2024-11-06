@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
+import 'package:resq_track/Components/image_viewer.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Map/map_provider.dart';
 import 'package:resq_track/Provider/Report/report_provider.dart';
@@ -275,10 +276,21 @@ class EmergencyInfoTabView extends StatelessWidget {
                     width: 130,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: CachedNetworkImage(
-                          imageUrl: responderPRo
-                                  .emergencyRes.emergency?.photos?[index] ??
-                              ""),
+                      child: GestureDetector(
+                        onTap: (){
+                          showDialog(context: context, builder: (context){
+                            return Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: ImageViewer(url:  responderPRo
+                                      .emergencyRes.emergency?.photos?[index] ??""),
+                            );
+                          });
+                        },
+                        child: CachedNetworkImage(
+                            imageUrl: responderPRo
+                                    .emergencyRes.emergency?.photos?[index] ??
+                                ""),
+                      ),
                     ),
                   ),
                 );
