@@ -119,6 +119,57 @@ class ResponderService with AuthBaseRepository {
     return responseMap;
   }
 
+  Future getGuideData(context) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+    await get(
+      context,
+      url: "$kBaseUrl/guide",
+    ).then((response) {
+      if (response != null) {
+        print("----------------${response.body}");
+        var dataResponse = json.decode(response.body);
+        print(response.statusCode);
+        if (response.statusCode == 200) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = json.decode(response.body);
+        } else if (response.statusCode == 401) {
+          Provider.of<ProfileProvider>(context, listen: false).logout(context);
+          AppNavigationHelper.setRootOldWidget(context, GetStartedPage());
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
+
+Future getSingleGuideData(context, id) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+    await get(
+      context,
+      url: "$kBaseUrl/guide/$id",
+    ).then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = json.decode(response.body);
+        } else if (response.statusCode == 401) {
+          Provider.of<ProfileProvider>(context, listen: false).logout(context);
+          AppNavigationHelper.setRootOldWidget(context, GetStartedPage());
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
+
+
   // @override
   Future getResponderReportById(context, data) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};

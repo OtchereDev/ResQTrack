@@ -390,7 +390,7 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
           color: AppColors.YELLOW, borderRadius: BorderRadius.circular(12)),
-      child: Text("${pro.travelTimeText}",
+      child: Text("${pro.travelTimeText ??"0 mins"}",
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
     );
   }

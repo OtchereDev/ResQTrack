@@ -3,19 +3,37 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Components/search_text.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
+import 'package:resq_track/Provider/Responder/responder_provider.dart';
+import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Views/Account/EmergencyGuide/emergency_guide_detail.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
 import 'package:resq_track/Views/Notification/notification_page.dart';
 import 'package:resq_track/Widgets/back_arrow_button.dart';
 import 'package:resq_track/Widgets/emergency_guide_tile.dart';
 
-class FirstAidinstructionPage extends StatelessWidget {
+class FirstAidinstructionPage extends StatefulWidget {
   FirstAidinstructionPage({super.key});
 
+  @override
+  State<FirstAidinstructionPage> createState() => _FirstAidinstructionPageState();
+}
+
+class _FirstAidinstructionPageState extends State<FirstAidinstructionPage> {
   final filerValue = ValueNotifier(0);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      var responderPro = Provider.of<ResponderProvider>(context, listen: false);
+      responderPro.getGuide(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,11 +113,18 @@ class FirstAidinstructionPage extends StatelessWidget {
                             }),
                       ),
                       AppSpaces.height16,
-                     ...List.generate(3, (index){
-                      return  EmergencyGuideTile(onTap: (){
-                        AppNavigationHelper.navigateToWidget(context, EmergencyGuideDetail());
-                      },);
-                     })
+                     Consumer<ResponderProvider>(
+                       builder: (context, res, _) {
+                         return res.isLoading ? LoadingPage(): Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(res.guideData?.data?.guides.length ??0, (index){
+                          return  EmergencyGuideTile(onTap: (){
+                            AppNavigationHelper.navigateToWidget(context, EmergencyGuideDetail(guide: res.guideData!.data!.guides[index],));
+                          },guide: res.guideData?.data?.guides[index],);
+                         }),
+                         );
+                       }
+                     )
                     ],
                   ),
                 ),

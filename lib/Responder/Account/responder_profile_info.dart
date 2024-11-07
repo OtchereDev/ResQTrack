@@ -8,7 +8,6 @@ import 'package:resq_track/Components/textformfield.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Views/Home/home_dialog.dart';
-import 'package:resq_track/Widgets/back_arrow_button.dart';
 import 'package:resq_track/Widgets/custom_buttom.dart';
 
 class ResponderProfile extends StatefulWidget {
@@ -42,7 +41,7 @@ class _ResponderProfileState extends State<ResponderProfile> {
       backgroundColor: AppColors.WHITE,
       body: Consumer<ProfileProvider>(builder: (context, profile, _) {
           return SafeArea(
-            child: profile.isLoading ? LoadingPage(): Padding(
+            child: profile.isLoading ? const LoadingPage(): Padding(
               padding:  EdgeInsets.only(left: 20.0, top:Platform.isIOS ? 0: 20, right: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +60,7 @@ class _ResponderProfileState extends State<ResponderProfile> {
                       AppSpaces.height16,
                       Row(
                         children: [
-                          CircleAvatar(
+                          const CircleAvatar(
                             radius: 40,
                             backgroundImage: NetworkImage(
                                 "https://avatar.iran.liara.run/public"),
@@ -72,12 +71,12 @@ class _ResponderProfileState extends State<ResponderProfile> {
                               profile.selectProfileImages();
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0xff667085)),
+                                  border: Border.all(color: const Color(0xff667085)),
                                   borderRadius: BorderRadius.circular(30)),
-                              child: Text("Edit"),
+                              child: const Text("Edit"),
                             ),
                           )
                         ],

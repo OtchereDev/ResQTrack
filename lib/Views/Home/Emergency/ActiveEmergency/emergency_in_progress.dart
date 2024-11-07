@@ -11,6 +11,7 @@ import 'package:resq_track/Provider/Call/new_call.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Map/map_provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
+import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Utils/utils.dart';
@@ -30,6 +31,9 @@ class EmergencyInProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var callPro = Provider.of<SetupProvider>(context, listen: false);
+    var loc = Provider.of<LocationProvider>(context, listen: false);
+                var res = Provider.of<ResponderProvider>(context);
+
     return Scaffold(
       body: StreamBuilder<dynamic>(
           stream: RequestApi().getResponderLocation(
@@ -61,6 +65,12 @@ class EmergencyInProgress extends StatelessWidget {
               });
               return Consumer<ProfileProvider>(builder: (context, profile, _) {
                 var user = profile.currentUserProfile;
+                 res.calculateETA(
+        context,
+        "${locationData['latitude']},${locationData['longitude']}",
+        "${loc.currentPosition?.latitude},${loc.currentPosition?.longitude}");
+
+ 
                 return Stack(
                   children: [
                     MapScreenWidthCordinate(
@@ -98,8 +108,8 @@ class EmergencyInProgress extends StatelessWidget {
                                 decoration: BoxDecoration(
                                     color: AppColors.YELLOW,
                                     borderRadius: BorderRadius.circular(12)),
-                                child: const Text(
-                                  "02:34 Mins",
+                                child:  Text(
+                                  "${res.travelTimeText ?? "0 Mins"}",
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700),

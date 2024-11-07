@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:resq_track/Components/alert_dailog.dart';
 import 'package:resq_track/Core/app_constants.dart';
+import 'package:resq_track/Model/Response/guide_response_mode.dart';
 import 'package:resq_track/Model/Response/home_dashboard.dart';
 import 'package:resq_track/Model/Response/responder_respond_model.dart';
 import 'package:resq_track/Services/Remote/Responder/emergency_service.dart';
@@ -17,9 +18,14 @@ class ResponderProvider with ChangeNotifier {
   Metric? _homeMetrics;
   Metric? get homeMetrics => _homeMetrics;
 
-var  _travelTimeText;
- get travelTimeText => _travelTimeText;
+  GuideResponse? _guideResponse;
+  GuideResponse? get guideData => _guideResponse;
 
+  Guide? _guide;
+  Guide? get singleGuide => _guide;
+
+  var _travelTimeText;
+  get travelTimeText => _travelTimeText;
 
   setLoading(bool load) {
     _isLoading = load;
@@ -56,7 +62,7 @@ var  _travelTimeText;
     setLoading(true);
     await emergencyServices.acceptRide(context, id).then((res) {
       setLoading(false);
-        debugPrint("-----------------${res}-----------");
+      debugPrint("-----------------${res}-----------");
       if (res['status'] == true) {
         alertDialog(title: 'Success', message: res['message'], isSuccess: true);
       } else {
@@ -65,11 +71,11 @@ var  _travelTimeText;
     });
   }
 
-    responderComplete(context, id) async {
+  responderComplete(context, id) async {
     setLoading(true);
     await emergencyServices.completeRide(context, id).then((res) {
       setLoading(false);
-        debugPrint("-----------------${res}-----------");
+      debugPrint("-----------------${res}-----------");
       if (res['status'] == true) {
         alertDialog(title: 'Success', message: res['message'], isSuccess: true);
       } else {
@@ -94,9 +100,36 @@ var  _travelTimeText;
     });
   }
 
-  Future<void> calculateETA(
-      context, String origin, String destination) async {
+  getGuide(context) async {
+    setLoading(true);
+    await emergencyServices.getGuideData(context).then((response) {
+      // print("------Response------$response----------------");
+      setLoading(false);
+      if (response['status'] == true) {
+        _guideResponse = GuideResponse.fromJson(response['data']);
+        notifyListeners();
+      } else {
+        alertDialog(
+            title: 'Failed', message: response['message'], isSuccess: false);
+      }
+    });
+  }
 
+  getSingleGuide(context, id) async {
+    setLoading(true);
+    await emergencyServices.getSingleGuideData(context, id).then((response) {
+      setLoading(false);
+      if (response['status'] == true) {
+        _guide = Guide.fromJson(response['data']['data']['guide']);
+        notifyListeners();
+      } else {
+        alertDialog(
+            title: 'Failed', message: response['message'], isSuccess: false);
+      }
+    });
+  }
+
+  Future<void> calculateETA(context, String origin, String destination) async {
     await emergencyServices
         .getETA(context, newApiKey, origin, destination)
         .then((response) {
@@ -107,10 +140,10 @@ var  _travelTimeText;
 
         final travelTime = durationInTraffic ?? duration;
 
-         _travelTimeText = travelTime['text'];
-         notifyListeners();
+        _travelTimeText = travelTime['text'];
+        notifyListeners();
 
-        return travelTimeText; 
+        return travelTimeText;
       }
     });
   }

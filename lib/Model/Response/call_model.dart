@@ -1,4 +1,3 @@
-import 'package:resq_track/Model/Response/user_response.dart';
 
 class CallModel {
   late String id;

@@ -86,6 +86,20 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Initialize the map with the route
+          Provider.of<MapProvider>(context, listen: false)
+              .fetchPolylinePoints(context,
+                  latitude: widget.latLng!.latitude,
+                  longitude: widget.latLng!.longitude)
+              .then((coordinates) {
+            if (coordinates != null) {
+              // Generate polyline from the fetched coordinates
+              Provider.of<MapProvider>(context, listen: false)
+                  .generatePolyLineFromPoints(coordinates);
+            }
+          });
+        });
     return Consumer<MapProvider>(
       builder: (context, mapProvider, child) {
         var current = Provider.of<LocationProvider>(context, listen: false);

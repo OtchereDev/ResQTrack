@@ -11,7 +11,7 @@ import 'package:resq_track/Views/Intro/init_screen.dart';
 import 'package:resq_track/Views/Settings/Accesibility/policy_page.dart';
 import 'package:resq_track/Views/Settings/Language/language_page.dart';
 import 'package:resq_track/Views/Settings/Policy/policy_page.dart';
-
+    
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 

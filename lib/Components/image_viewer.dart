@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 
 class ImageViewer extends StatelessWidget {
   final String url;
-  const ImageViewer({super.key, required this.url});
+  final double? height;
+  const ImageViewer({super.key, required this.url, this.height = 200,});
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: CachedNetworkImage(
+        height: height,
         imageUrl: url,
         imageBuilder: (context, imageProvider) => Container(
           decoration: BoxDecoration(

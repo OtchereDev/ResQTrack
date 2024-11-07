@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:resq_track/Model/Request/emergency_m.dart';
 import 'package:resq_track/Utils/Dialogs/notifications.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:http/http.dart' as http;
 
 class LocationProvider with ChangeNotifier {
   String _locationMessage = "Loading...";
@@ -27,9 +24,6 @@ class LocationProvider with ChangeNotifier {
   String _country = "";
   String get country => _country;
 
-
-
-  // Start listening to location changes
   void startLocationUpdates(context) {
     _positionStreamSubscription = Geolocator.getPositionStream(
             locationSettings: Platform.isIOS
@@ -43,7 +37,6 @@ class LocationProvider with ChangeNotifier {
                   ))
         .listen((Position position) {
       _currentPosition = position;
-      // print("-------$_currentPosition---------------");
       NotificationUtils.showToast(context,message: _currentPosition?.latitude.toString() ??"N/A");
       notifyListeners();
     });
@@ -55,7 +48,6 @@ class LocationProvider with ChangeNotifier {
   }
 
 
-   // Dispose the stream subscription
   @override
   void dispose() {
     stopLocationUpdates();
@@ -94,15 +86,8 @@ class LocationProvider with ChangeNotifier {
       notifyListeners();
       return;
     }
-
-    debugPrint("------------$serviceEnabled--------$permission-----");
-
-
-    // Get the current position.
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-
-    // Convert the coordinates to an address.
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);

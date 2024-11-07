@@ -20,12 +20,11 @@ import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Provider/Util/util_provider.dart';
-import 'package:resq_track/Services/Firbase/home_api.dart';
+import 'package:resq_track/Responder/Learn/learn_page.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Services/fcm/notification.dart';
 import 'package:resq_track/Services/fcm/notification_service.dart';
 import 'package:resq_track/Views/Intro/init_screen.dart';
-import 'package:resq_track/Views/MapViews/map_home.dart';
 import 'package:resq_track/firebase_options.dart';
 
  var naviKey = GlobalKey<NavigatorState>();
@@ -97,7 +96,7 @@ class MyApp extends StatelessWidget {
                 colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
                 useMaterial3: true,
               ).copyWith(textTheme: GoogleFonts.poppinsTextTheme()),
-              home: const InitScreen(),
+              home:  const InitScreen(),
             );
           }),
     );
