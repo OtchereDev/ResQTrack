@@ -111,7 +111,12 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
     await _engine.enableVideo();
     await _engine.startPreview();
 
-    
+    // await _engine.joinChannel(
+    //   token: agoraTestToken,
+    //   channelId: agoraTestChannelName,
+    //   uid: 0,
+    //   options: const ChannelMediaOptions(),
+    // );
   }
 
   Future<void> _dispose() async {
@@ -261,7 +266,7 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
                                           ],
                                         ),
                                   _buildUserInfoAndControls(callProvider, true,
-                                      CallModel.fromJson(callData), onTap: () {
+                                      CallModel.fromJson(callData),_engine, onTap: () {
                                     _dispose();
                                   }),
                                 ],
@@ -574,7 +579,7 @@ Widget _buildAvatarContainer(CallModel callModel) {
 }
 
 Widget _buildUserInfoAndControls(
-    CallProvider cubit, bool isReceiver, CallModel callModel,
+    CallProvider cubit, bool isReceiver, CallModel callModel, RtcEngine _engine,
     {VoidCallback? onTap}) {
   return Container(
     padding: const EdgeInsets.all(15.0),
@@ -599,14 +604,14 @@ Widget _buildUserInfoAndControls(
                         style: TextStyle(color: Colors.white, fontSize: 39.0)),
               )
             : Expanded(child: Container()),
-        _buildActionButtons(cubit, true, callModel, onTap: () {}),
+        _buildActionButtons(cubit, true, callModel,_engine, onTap: () {}),
       ],
     ),
   );
 }
 
 Widget _buildActionButtons(
-    CallProvider cubit, bool isReceiver, CallModel callModel,
+    CallProvider cubit, bool isReceiver, CallModel callModel,RtcEngine _engine,
     {VoidCallback? onTap}) {
   return cubit.remoteUid == null
       ? Row(
@@ -615,7 +620,13 @@ Widget _buildActionButtons(
             if (isReceiver)
               Expanded(
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
+                    await _engine.joinChannel(
+      token: agoraTestToken,
+      channelId: agoraTestChannelName,
+      uid: 0,
+      options: const ChannelMediaOptions(),
+    );
                     cubit.updateCallStatusToAccept(callModel);
                   },
                   child: Container(
@@ -685,7 +696,6 @@ Widget _buildActionButtons(
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  onTap!();
                   cubit.performEndCall(callModel);
                 },
                 child: const DefaultCircleImage(

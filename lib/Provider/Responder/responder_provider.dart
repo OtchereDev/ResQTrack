@@ -29,6 +29,9 @@ class ResponderProvider with ChangeNotifier {
   QuizesResponse? _quizesResponse;
   QuizesResponse? get quizesResponse => _quizesResponse;
 
+  dynamic _score = "0";
+  dynamic get score => _score;
+
   List<Answer> _answer = [];
   List<Answer> get answer => _answer;
 
@@ -43,19 +46,17 @@ class ResponderProvider with ChangeNotifier {
     notifyListeners();
   }
 
-void setAnswer(Answer newAnswer) {
-  final index = _answer.indexWhere((an) => an.questionId == newAnswer.questionId);
-  if (index != -1) {
-    _answer[index] = newAnswer;
-  } else {
-    _answer.add(newAnswer);
+  void setAnswer(Answer newAnswer) {
+    final index =
+        _answer.indexWhere((an) => an.questionId == newAnswer.questionId);
+    if (index != -1) {
+      _answer[index] = newAnswer;
+    } else {
+      _answer.add(newAnswer);
+    }
+
+    notifyListeners();
   }
-
-  notifyListeners();
-}
-
-
-
 
   getEmergencyReportById(context, id) async {
     setLoading(true);
@@ -95,6 +96,30 @@ void setAnswer(Answer newAnswer) {
         alertDialog(title: 'Failed', message: res['message'], isSuccess: false);
       }
     });
+  }
+
+  Future<bool> answerQuestion(context, String quizId) async {
+    // setLoading(true);
+    bool isSuccess = false;
+    AnswerResponse _answersReq =
+        AnswerResponse(answers: _answer, quizId: quizId);
+    await emergencyServices
+        .answerQuestions(context, _answersReq.toJson())
+        .then((res) {
+      print(res);
+      setLoading(false);
+      if (res['status'] == true) {
+        isSuccess = true;
+        _score = (res['data']['data']['correctCount'] /
+                res['data']['data']['totalCount']) *
+            100;
+
+        notifyListeners();
+      } else {
+        alertDialog(title: 'Failed', message: res['message'], isSuccess: false);
+      }
+    });
+    return isSuccess;
   }
 
   acceptRequest(context, id) async {

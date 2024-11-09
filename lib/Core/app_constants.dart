@@ -37,7 +37,7 @@ const int callDurationInSec = 45;
 const agoraAppId = 'e98134d8f471480d89497c28be439636'; //replace with your agora app id
 const agoraTestChannelName = 'EmergencyCall'; //replace with your agora channel name
 // const appCert = "47006e53f9d64075a4a20fd6a04a00c0";
-const agoraTestToken = '007eJxTYPD3WzSve87ayzm7GHdXbTe79iPlYceCBi0Xra8hL0pmiaooMKRaWhgam6RYpJmYG5pYGKRYWJpYmicbWSSlmhhbmhmblZ1RT28IZGSYoneXmZEBAkF8XgbX3NSi9NS85ErnxJwcBgYAtq8jDw=='; //replace with your agora token
+const agoraTestToken = '007eJxTYLg2o+1dJGuB/OTbNXeu2nVd+TWNMZHF5rXg+8h3El/ZlggqMKRaWhgam6RYpJmYG5pYGKRYWJpYmicbWSSlmhhbmhmbvbuqn94QyMiQ/foyMyMDBIL4vAyuualF6al5yZXOiTk5DAwAvR8jvA=='; //replace with your agora token
 
 
 

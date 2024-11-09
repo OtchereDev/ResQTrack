@@ -33,7 +33,15 @@ class CompletedQuizPage extends StatelessWidget {
                 AppSpaces.height40,
                 const Text("You did it. You passed the First Aid Treatment \nquiz in one try!",textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.BLACK),),
                 AppSpaces.height20,
-                SvgPicture.asset("assets/icons/full_load.svg",),
+                Container(
+                  height: 79,
+                  width: 79,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(width: 12, color: AppColors.GREEN),
+                  ),
+                  child: Center(child: Text("${responder.score ??"0"}%", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.GREEN),)),
+                ),
                 const Spacer(),
                 CustomButton(title: 'Done', onTap: (){
                   AppNavigationHelper.setRootOldWidget(context, const ResponderBaseHomePage(initialIdex: 1,));
