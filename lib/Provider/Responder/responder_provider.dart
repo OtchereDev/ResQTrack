@@ -99,14 +99,13 @@ class ResponderProvider with ChangeNotifier {
   }
 
   Future<bool> answerQuestion(context, String quizId) async {
-    // setLoading(true);
+    setLoading(true);
     bool isSuccess = false;
     AnswerResponse _answersReq =
         AnswerResponse(answers: _answer, quizId: quizId);
     await emergencyServices
         .answerQuestions(context, _answersReq.toJson())
         .then((res) {
-      print(res);
       setLoading(false);
       if (res['status'] == true) {
         isSuccess = true;

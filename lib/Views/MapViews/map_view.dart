@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
-import 'package:resq_track/Utils/utils.dart';
 
 class MapScreen extends StatefulWidget {
   final double height;
@@ -21,7 +20,6 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // Access the provider only when the widget is mounted
         _locationProvider = Provider.of<LocationProvider>(context, listen: false);
         _locationProvider?.startLocationUpdates(context);
       }
@@ -30,7 +28,6 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    // Cancel location updates only if the widget is still mounted
     if (mounted) {
       _locationProvider?.stopLocationUpdates();
     }
