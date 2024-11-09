@@ -11,6 +11,7 @@ import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Responder/Learn/quiz_question_page.dart';
+import 'package:resq_track/Responder/Learn/tutotial_view.dart';
 import 'package:resq_track/Utils/Loaders/loader_utils.dart';
 import 'package:resq_track/Utils/utils.dart';
 class LearnPage extends StatefulWidget {
@@ -27,7 +28,11 @@ class _LearnPageState extends State<LearnPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ResponderProvider>(context, listen: false).getQuiz(context);
+      Future.value([
+      Provider.of<ResponderProvider>(context, listen: false).getQuiz(context),
+      Provider.of<ResponderProvider>(context, listen: false).getTutorial(context),
+
+      ]);
     });
   }
 
@@ -202,73 +207,6 @@ class QuizeTile extends StatelessWidget {
     );
   }
 }
-
-class VideoTrainingTabView extends StatelessWidget {
-  const VideoTrainingTabView({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-                flex: 9,
-                child: SizedBox(
-                    height: 36, child: SearchText(search: (search) {}))),
-            AppSpaces.width8,
-            Expanded(
-              child: InkWell(
-                onTap: () {},
-                child: Container(
-                  height: 35,
-                  width: 35,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(width: 0.6, color: AppColors.BLACK)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SvgPicture.asset('assets/icons/filter.svg'),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        AppSpaces.height20,
-        ...List.generate(3, (index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: SizedBox(
-              height: 150,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    child: Image.asset("assets/images/doc.png"),
-                  ),
-                  Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "EMT Training Module",
-                        style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.WHITE),
-                      ))
-                ],
-              ),
-            ),
-          );
-        })
-      ],
-    );
-  }
-}
-
 Widget _tabButton(bool isActive, String title, VoidCallback? onTap) {
   return InkWell(
     onTap: onTap,

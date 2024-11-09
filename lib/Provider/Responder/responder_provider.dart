@@ -7,6 +7,8 @@ import 'package:resq_track/Model/Response/home_dashboard.dart';
 import 'package:resq_track/Model/Response/questionResponse.dart';
 import 'package:resq_track/Model/Response/quizResponse.dart';
 import 'package:resq_track/Model/Response/responder_respond_model.dart';
+import 'package:resq_track/Model/Response/tutorail_details_model.dart';
+import 'package:resq_track/Model/Response/tutorials_model.dart';
 import 'package:resq_track/Services/Remote/Responder/emergency_service.dart';
 
 class ResponderProvider with ChangeNotifier {
@@ -28,6 +30,15 @@ class ResponderProvider with ChangeNotifier {
 
   QuizesResponse? _quizesResponse;
   QuizesResponse? get quizesResponse => _quizesResponse;
+
+
+  TutorialModel? _tutorialModel;
+  TutorialModel? get tutorialModel => _tutorialModel;
+
+
+  TutorialDetailsModel? _tutorialDetailsModel;
+  TutorialDetailsModel? get tutorialDetailsModel =>_tutorialDetailsModel;
+
 
   dynamic _score = "0";
   dynamic get score => _score;
@@ -74,7 +85,6 @@ class ResponderProvider with ChangeNotifier {
   getQuiz(context) async {
     setLoading(true);
     await emergencyServices.getQuestions(context).then((res) {
-      print(res);
       setLoading(false);
       if (res['status'] == true) {
         _quizesResponse = QuizesResponse.fromJson(res['data']);
@@ -85,12 +95,41 @@ class ResponderProvider with ChangeNotifier {
     });
   }
 
+  
+
   getQuestionsDetails(context, id) async {
     setLoading(true);
     await emergencyServices.getQuestionsDetails(context, id).then((res) {
       setLoading(false);
       if (res['status'] == true) {
         _questionResponse = QuestionResponse.fromJson(res['data']);
+        notifyListeners();
+      } else {
+        alertDialog(title: 'Failed', message: res['message'], isSuccess: false);
+      }
+    });
+  }
+
+  getTutorial(context) async {
+    setLoading(true);
+    await emergencyServices.getTutorial(context).then((res) {
+      print(res);
+      setLoading(false);
+      if (res['status'] == true) {
+        _tutorialModel = TutorialModel.fromJson(res['data']);
+        notifyListeners();
+      } else {
+        alertDialog(title: 'Failed', message: res['message'], isSuccess: false);
+      }
+    });
+  }
+
+   getTutorialDetails(context, id) async {
+    setLoading(true);
+    await emergencyServices.getTutorialDetails(context, id).then((res) {
+      setLoading(false);
+      if (res['status'] == true) {
+        _tutorialDetailsModel = TutorialDetailsModel.fromJson(res['data']);
         notifyListeners();
       } else {
         alertDialog(title: 'Failed', message: res['message'], isSuccess: false);

@@ -396,4 +396,54 @@ class ResponderService with AuthBaseRepository {
     });
     return responseMap;
   }
+
+
+  Future getTutorial(context) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+    await get(
+      context,
+      url: "$kBaseUrl/tutorials",
+    ).then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        } else if (response.statusCode == 401) {
+          Provider.of<ProfileProvider>(context, listen: false).logout(context);
+          AppNavigationHelper.setRootOldWidget(context, GetStartedPage());
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
+
+
+   Future getTutorialDetails(context, id) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+    await get(
+      context,
+      url: "$kBaseUrl/tutorials/$id",
+    ).then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        } else if (response.statusCode == 401) {
+          Provider.of<ProfileProvider>(context, listen: false).logout(context);
+          AppNavigationHelper.setRootOldWidget(context, GetStartedPage());
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
 }
