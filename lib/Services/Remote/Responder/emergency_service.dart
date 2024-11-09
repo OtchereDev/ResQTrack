@@ -29,7 +29,7 @@ class ResponderService with AuthBaseRepository {
     return responseMap;
   }
 
- Future arrivedRide(context, data) async {
+  Future arrivedRide(context, data) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
 
     await post(context, url: "$kBaseUrl/emergency/$data/responder-arrived")
@@ -68,7 +68,6 @@ class ResponderService with AuthBaseRepository {
     });
     return responseMap;
   }
-
 
   // @override
   Future getResponderDashboard(context, data) async {
@@ -145,7 +144,7 @@ class ResponderService with AuthBaseRepository {
     return responseMap;
   }
 
-Future getSingleGuideData(context, id) async {
+  Future getSingleGuideData(context, id) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
     await get(
       context,
@@ -168,7 +167,6 @@ Future getSingleGuideData(context, id) async {
     });
     return responseMap;
   }
-
 
   // @override
   Future getResponderReportById(context, data) async {
@@ -299,14 +297,14 @@ Future getSingleGuideData(context, id) async {
     return responseMap;
   }
 
-
-   Future getETA(context, String apiKey, String origin, String destination) async {
+  Future getETA(
+      context, String apiKey, String origin, String destination) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
-    final url =(
-      'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&mode=driving&departure_time=now&key=$apiKey');
+    final url =
+        ('https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&mode=driving&departure_time=now&key=$apiKey');
     await get(
       context,
-      url:url,
+      url: url,
     ).then((response) {
       if (response != null) {
         var dataResponse = json.decode(response.body);
@@ -314,6 +312,55 @@ Future getSingleGuideData(context, id) async {
           responseMap['status'] = true;
           responseMap['message'] = dataResponse['message'];
           responseMap['data'] = json.decode(response.body);
+        } else if (response.statusCode == 401) {
+          Provider.of<ProfileProvider>(context, listen: false).logout(context);
+          AppNavigationHelper.setRootOldWidget(context, GetStartedPage());
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
+
+  Future getQuestions(context) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+    await get(
+      context,
+      url: "$kBaseUrl/quiz",
+    ).then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        } else if (response.statusCode == 401) {
+          Provider.of<ProfileProvider>(context, listen: false).logout(context);
+          AppNavigationHelper.setRootOldWidget(context, GetStartedPage());
+        } else {
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
+        }
+      }
+    });
+    return responseMap;
+  }
+
+
+  Future getQuestionsDetails(context, id) async {
+    dynamic responseMap = {"status": false, "message": "", "data": null};
+    await get(
+      context,
+      url: "$kBaseUrl/quiz/$id",
+    ).then((response) {
+      if (response != null) {
+        var dataResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          responseMap['status'] = true;
+          responseMap['message'] = dataResponse['message'];
+          responseMap['data'] = dataResponse;
         } else if (response.statusCode == 401) {
           Provider.of<ProfileProvider>(context, listen: false).logout(context);
           AppNavigationHelper.setRootOldWidget(context, GetStartedPage());

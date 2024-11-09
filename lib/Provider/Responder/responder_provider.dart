@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:resq_track/Components/alert_dailog.dart';
 import 'package:resq_track/Core/app_constants.dart';
+import 'package:resq_track/Model/Request/answer_request.dart';
 import 'package:resq_track/Model/Response/guide_response_mode.dart';
 import 'package:resq_track/Model/Response/home_dashboard.dart';
+import 'package:resq_track/Model/Response/questionResponse.dart';
+import 'package:resq_track/Model/Response/quizResponse.dart';
 import 'package:resq_track/Model/Response/responder_respond_model.dart';
 import 'package:resq_track/Services/Remote/Responder/emergency_service.dart';
 
@@ -12,14 +15,22 @@ class ResponderProvider with ChangeNotifier {
   final emergencyServices = ResponderService();
 
   ResponderRequestModel _emergencyResponse = ResponderRequestModel();
-
   ResponderRequestModel get emergencyRes => _emergencyResponse;
+
+  QuestionResponse? _questionResponse;
+  QuestionResponse? get questionResponse => _questionResponse;
 
   Metric? _homeMetrics;
   Metric? get homeMetrics => _homeMetrics;
 
   GuideResponse? _guideResponse;
   GuideResponse? get guideData => _guideResponse;
+
+  QuizesResponse? _quizesResponse;
+  QuizesResponse? get quizesResponse => _quizesResponse;
+
+  List<Answer> _answer = [];
+  List<Answer> get answer => _answer;
 
   Guide? _guide;
   Guide? get singleGuide => _guide;
@@ -31,6 +42,20 @@ class ResponderProvider with ChangeNotifier {
     _isLoading = load;
     notifyListeners();
   }
+
+void setAnswer(Answer newAnswer) {
+  final index = _answer.indexWhere((an) => an.questionId == newAnswer.questionId);
+  if (index != -1) {
+    _answer[index] = newAnswer;
+  } else {
+    _answer.add(newAnswer);
+  }
+
+  notifyListeners();
+}
+
+
+
 
   getEmergencyReportById(context, id) async {
     setLoading(true);
@@ -45,12 +70,38 @@ class ResponderProvider with ChangeNotifier {
     });
   }
 
+  getQuiz(context) async {
+    setLoading(true);
+    await emergencyServices.getQuestions(context).then((res) {
+      print(res);
+      setLoading(false);
+      if (res['status'] == true) {
+        _quizesResponse = QuizesResponse.fromJson(res['data']);
+        notifyListeners();
+      } else {
+        alertDialog(title: 'Failed', message: res['message'], isSuccess: false);
+      }
+    });
+  }
+
+  getQuestionsDetails(context, id) async {
+    setLoading(true);
+    await emergencyServices.getQuestionsDetails(context, id).then((res) {
+      setLoading(false);
+      if (res['status'] == true) {
+        _questionResponse = QuestionResponse.fromJson(res['data']);
+        notifyListeners();
+      } else {
+        alertDialog(title: 'Failed', message: res['message'], isSuccess: false);
+      }
+    });
+  }
+
   acceptRequest(context, id) async {
     setLoading(true);
     await emergencyServices.acceptRide(context, id).then((res) {
       setLoading(false);
       if (res['status'] == true) {
-        debugPrint("-----------------${res}-----------");
         alertDialog(title: 'Success', message: res['message'], isSuccess: true);
       } else {
         alertDialog(title: 'Failed', message: res['message'], isSuccess: false);
@@ -62,7 +113,6 @@ class ResponderProvider with ChangeNotifier {
     setLoading(true);
     await emergencyServices.acceptRide(context, id).then((res) {
       setLoading(false);
-      debugPrint("-----------------${res}-----------");
       if (res['status'] == true) {
         alertDialog(title: 'Success', message: res['message'], isSuccess: true);
       } else {
@@ -75,7 +125,6 @@ class ResponderProvider with ChangeNotifier {
     setLoading(true);
     await emergencyServices.completeRide(context, id).then((res) {
       setLoading(false);
-      debugPrint("-----------------${res}-----------");
       if (res['status'] == true) {
         alertDialog(title: 'Success', message: res['message'], isSuccess: true);
       } else {
@@ -88,7 +137,6 @@ class ResponderProvider with ChangeNotifier {
     setLoading(true);
     await emergencyServices.getResponderDashboard(
         context, {"location": "0.83663, -3.008474"}).then((response) {
-      print("------Response------$response----------------");
       setLoading(false);
       if (response['status'] == true) {
         _homeMetrics = Metric.fromJson(response['data']['data']['metric']);

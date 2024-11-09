@@ -111,12 +111,7 @@ class _RespondToEmergencyState extends State<RespondToEmergency>
     await _engine.enableVideo();
     await _engine.startPreview();
 
-    await _engine.joinChannel(
-      token: agoraTestToken,
-      channelId: agoraTestChannelName,
-      uid: 0,
-      options: const ChannelMediaOptions(),
-    );
+    
   }
 
   Future<void> _dispose() async {

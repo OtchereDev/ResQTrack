@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 class ImageViewer extends StatelessWidget {
   final String url;
   final double? height;
-  const ImageViewer({super.key, required this.url, this.height = 200,});
+  final double? width;
+  const ImageViewer({super.key, required this.url, this.height = 200, this.width,});
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +14,7 @@ class ImageViewer extends StatelessWidget {
       borderRadius: BorderRadius.circular(15),
       child: CachedNetworkImage(
         height: height,
+        width: width,
         imageUrl: url,
         imageBuilder: (context, imageProvider) => Container(
           decoration: BoxDecoration(

@@ -5,15 +5,31 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
+import 'package:resq_track/Components/image_viewer.dart';
 import 'package:resq_track/Components/search_text.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
+import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Responder/Learn/quiz_question_page.dart';
-
-class LearnPage extends StatelessWidget {
+import 'package:resq_track/Utils/Loaders/loader_utils.dart';
+import 'package:resq_track/Utils/utils.dart';
+class LearnPage extends StatefulWidget {
   LearnPage({super.key});
 
+  @override
+  State<LearnPage> createState() => _LearnPageState();
+}
+
+class _LearnPageState extends State<LearnPage> {
   final activeTabValue = ValueNotifier(0);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ResponderProvider>(context, listen: false).getQuiz(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,26 +39,27 @@ class LearnPage extends StatelessWidget {
         child: Consumer<ProfileProvider>(builder: (context, profile, _) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0.0),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Padding(
-                padding: EdgeInsets.only(
-                    left: 20.0, top: Platform.isIOS ? 0 : 20, right: 20),
-                child: Text(
-                  "Learn",
-                  style: GoogleFonts.annapurnaSil(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.BLACK),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                      left: 20.0, top: Platform.isIOS ? 0 : 20, right: 20),
+                  child: Text(
+                    "Learn",
+                    style: GoogleFonts.annapurnaSil(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.BLACK),
+                  ),
                 ),
-              ),
-              AppSpaces.height20,
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ValueListenableBuilder(
+                AppSpaces.height20,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ValueListenableBuilder(
                         valueListenable: activeTabValue,
                         builder: (context, isActive, _) {
                           return Row(
@@ -56,15 +73,22 @@ class LearnPage extends StatelessWidget {
                               })
                             ],
                           );
-                        }),
-                    AppSpaces.height16,
-                    ValueListenableBuilder(valueListenable: activeTabValue, builder: (context, isActive, _){
-                      return isActive == 0 ? VideoTrainingTabView(): QuizTabView();
-                    })
-                  ],
+                        },
+                      ),
+                      AppSpaces.height16,
+                      ValueListenableBuilder(
+                        valueListenable: activeTabValue,
+                        builder: (context, isActive, _) {
+                          return isActive == 0 ?
+                              VideoTrainingTabView()
+                             :  QuizTabView();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           );
         }),
       ),
@@ -72,41 +96,47 @@ class LearnPage extends StatelessWidget {
   }
 }
 
+
 class QuizTabView extends StatelessWidget {
-  const QuizTabView({
-    super.key,
-  });
+  const QuizTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-      "Jump back in",
-      style:
-          TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-    ),
-    AppSpaces.height16,
-    QuizeTile(),
-    AppSpaces.height16,
-    Text(
-      "Jump back in",
-      style:
-          TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-    ),
-    AppSpaces.height16,
-    ...List.generate(4, (index) {
-      return QuizeTile(
-        onTap: () {
-          AppNavigationHelper.navigateToWidget(context, QuizPage());
-        },
-      );
-    })
-      ],
+    return Consumer<ResponderProvider>(
+      builder: (context, responder, _) {
+        final quizzes = responder.quizesResponse?.data?.quizes ?? [];
+
+        return responder.isLoading ? LoadingPage(): Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Jump back in",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+            ),
+           
+            AppSpaces.height16,
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: quizzes.length,
+              itemBuilder: (context, index) {
+                var question = quizzes[index];
+                return QuizeTile(
+                  key: ValueKey(question.id),
+                  desc: question.description ?? "",
+                  title: question.title,
+                  percentage: question.image,
+                  onTap: () {
+                    AppNavigationHelper.navigateToWidget(context, QuizPage(quizeId: question.id,));
+                  },
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
-}
+}      
 
 class QuizeTile extends StatelessWidget {
   final String? title, desc, score, percentage;
@@ -123,7 +153,7 @@ class QuizeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: 15.0),
       child: InkWell(
         onTap: onTap,
         child: Container(
@@ -138,10 +168,11 @@ class QuizeTile extends StatelessWidget {
               ]),
           child: Row(
             children: [
-              Image.asset(
-                'assets/images/quize_thumbnail.png',
+              ImageViewer(
+                url: percentage??"",
                 height: 75,
                 width: 75,
+              
               ),
               AppSpaces.width8,
               Column(
@@ -149,14 +180,16 @@ class QuizeTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "First Aid Treatment",
+                    title??"",
                     style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: AppColors.BLACK),
                   ),
                   AppSpaces.height4,
-                  Text("Lorem ipsum dolor sit ame...."),
+                  SizedBox(
+                    width: Utils.screenWidth(context)-170,
+                    child: Text(desc??"", maxLines: 1,style: TextStyle(overflow: TextOverflow.ellipsis), )),
                   AppSpaces.height4,
                   Text("Score: 0"),
                 ],
