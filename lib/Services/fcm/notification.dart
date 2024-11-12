@@ -7,9 +7,15 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import 'package:resq_track/AppTheme/app_config.dart';
+import 'package:resq_track/Components/alert_dailog.dart';
 import 'package:resq_track/Core/app_constants.dart';
 import 'package:resq_track/Model/Response/call_model.dart';
+import 'package:resq_track/Provider/Call/new_call.dart';
 import 'package:resq_track/Services/fcm/notification_service.dart';
+import 'package:resq_track/Utils/utils.dart';
+import 'package:resq_track/Widgets/call_widget.dart';
 import '../Local/shared_prefs_manager.dart';
 
 class PushNotificationService {
@@ -19,30 +25,75 @@ class PushNotificationService {
   // It is assumed that all messages contain a data field with the key 'type'
   Future<void> setupInteractedMessage(context) async {
     await Firebase.initializeApp();
+    // FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
+    //   print(
+    //       "============On App Open ==========Remote=============${remoteMessage.data}");
+    //   debugPrint('Receive open app: $remoteMessage ');
+
+    //   debugPrint(
+    //       'InOpenAppNotifyBody ${remoteMessage.data['body'].toString()}');
+    //   // if (Platform.isAndroid) {
+    //   //   if (remoteMessage.data['type'] == 'call') {
+    //   //     Map<String, dynamic> bodyJson =
+    //   //         jsonDecode(remoteMessage.data['body']);
+    //   //     Get.dialog(CallWidget(
+    //   //       callModel: CallModel.fromJson(bodyJson),
+    //   //     ));
+    //   //   }
+    //   // }
+    //   // if (Platform.isIOS) {
+    //   //   showDialog(
+    //   //       context: context,
+    //   //       builder: (context) => CupertinoAlertDialog(
+    //   //             title: Text(remoteMessage.notification!.title ?? ''),
+    //   //             content: Text(remoteMessage.notification!.body ?? ''),
+    //   //             actions: [
+    //   //               CupertinoDialogAction(
+    //   //                 isDefaultAction: true,
+    //   //                 child: const Text('OK'),
+    //   //                 onPressed: () => Navigator.of(
+    //   //                   context,
+    //   //                   rootNavigator: true,
+    //   //                 ).pop(),
+    //   //               )
+    //   //             ],
+    //   //           ));
+    //   // }
+    // });
+    
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
-      print("============On App Open ==========Remote=============${remoteMessage.data}");
-       debugPrint('Receive open app: $remoteMessage ');
-      debugPrint(
-          'InOpenAppNotifyBody ${remoteMessage.data['body'].toString()}');
-      if (Platform.isIOS) {
-        showDialog(
-            context: context,
-            builder: (context) => CupertinoAlertDialog(
-                  title: Text(remoteMessage.notification!.title ?? ''),
-                  content: Text(remoteMessage.notification!.body ?? ''),
-                  actions: [
-                    CupertinoDialogAction(
-                      isDefaultAction: true,
-                      child: const Text('OK'),
-                      onPressed: () => Navigator.of(
-                        context,
-                        rootNavigator: true,
-                      ).pop(),
-                    )
-                  ],
-                ));
-      }
-    });
+  debugPrint("Notification clicked with data: ${remoteMessage.data}");
+  
+  if (remoteMessage.data['type'] == 'call') {
+    if (Platform.isAndroid) {
+      debugPrint("Android - Opening call dialog");
+      Map<String, dynamic> bodyJson = jsonDecode(remoteMessage.data['body']);
+      Get.dialog(CallWidget(
+        callModel: CallModel.fromJson(bodyJson),
+      ));
+    } else if (Platform.isIOS) {
+      debugPrint("iOS - Showing Cupertino dialog");
+      showDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+                title: Text(remoteMessage.notification?.title ?? ''),
+                content: Text(remoteMessage.notification?.body ?? ''),
+                actions: [
+                  CupertinoDialogAction(
+                    isDefaultAction: true,
+                    child: const Text('OK'),
+                    onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                  )
+                ],
+              ));
+    }
+  } else {
+    debugPrint("Notification type not recognized or not a call");
+  }
+});
+
+    
+    
     generateToken();
     await enableIOSNotifications();
     await registerNotificationListeners();
@@ -73,11 +124,12 @@ class PushNotificationService {
     FirebaseMessaging.onMessage.listen((RemoteMessage? remoteMessage) {
       RemoteNotification? notification = remoteMessage?.notification;
       AndroidNotification? android = remoteMessage?.notification?.android;
-      print("--------$remoteMessage---------");
-      
+      print("----1----$remoteMessage---------");
+
 // If `onMessage` is triggered with a notification, construct our own
       // local notification to show to users using the created channel.
-      print("-----${android?.toMap()}.---${remoteMessage?.data}---------${notification?.body}");
+      print(
+          "-----${android?.toMap()}.---${remoteMessage?.data}---------${notification?.body}");
       //Foreground Msg
       if (remoteMessage!.data['type'] != 'call') {
         showNotification(
@@ -85,8 +137,13 @@ class PushNotificationService {
             body: remoteMessage.data['body'],
             type: remoteMessage.data['type']);
       }
+      if (remoteMessage.data['type'] == 'call') {
+        Map<String, dynamic> bodyJson = jsonDecode(remoteMessage.data['body']);
+        Get.dialog(CallWidget(
+          callModel: CallModel.fromJson(bodyJson),
+        ));
+      }
     });
-
   }
 
   enableIOSNotifications() async {
@@ -104,7 +161,6 @@ class PushNotificationService {
         // 'This channel is used for important notifications.', // description
         importance: Importance.max,
       );
-
 
   Future<String?> generateToken() async {
     // Request notification permissions from the user
@@ -165,7 +221,21 @@ class PushNotificationService {
   void onDidReceiveLocalNotification(
       int id, String? title, String? body, String? payload) async {
     // display a dialog with the notification details, tap ok to go to another page
-    // print("=======Close =========Notification =>${body}");
+    print("=======Close =========Notification =>${body}");
+    //  showDialog(
+    //   context: myContext,
+    //   builder: (context) => CupertinoAlertDialog(
+    //     title: Text(title ?? 'No Title'), // Handle null title
+    //     content: Text(body ?? 'No Body'), // Handle null body
+    //     actions: [
+    //       CupertinoDialogAction(
+    //         isDefaultAction: true,
+    //         child: const Text('OK'),
+    //         onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   Future<void> cancelNotifications(int id) async {
@@ -177,8 +247,6 @@ class PushNotificationService {
     await flutterLocalNotificationsPlugin.cancelAll();
   }
 
-
-
   static void showNotification(
       {required String title,
       required String body,
@@ -189,39 +257,34 @@ class PushNotificationService {
 
       int notificationId = Random().nextInt(1000);
       var ios = const DarwinNotificationDetails();
-      var platform = NotificationDetails(android: NotificationService.callChannel, iOS: ios);
-      await flutterLocalNotificationsPlugin.show(
-          notificationId,
-          '📞Ringing...',
-          '${CallModel.fromJson(bodyJson).callerName} is calling you',
-          platform,
+      var platform = NotificationDetails(
+          android: NotificationService.callChannel, iOS: ios);
+      await flutterLocalNotificationsPlugin.show(notificationId, '📞Ringing...',
+          '${CallModel.fromJson(bodyJson).callerName} is calling you', platform,
           payload: body);
       await Future.delayed(const Duration(seconds: callDurationInSec), () {
-        flutterLocalNotificationsPlugin
-            .cancel(notificationId)
-            .then((value) {
+        flutterLocalNotificationsPlugin.cancel(notificationId).then((value) {
           showMissedCallNotification(
-              senderName: bodyJson['sender']['full_name']);
+              senderName: CallModel.fromJson(bodyJson).callerName ?? "");
         });
       });
     } else {
       int notificationId = Random().nextInt(1000);
       var ios = const DarwinNotificationDetails();
-      var platform = NotificationDetails(android: NotificationService.normalChannel, iOS: ios);
+      var platform = NotificationDetails(
+          android: NotificationService.normalChannel, iOS: ios);
       await flutterLocalNotificationsPlugin
           .show(notificationId, title, body, platform, payload: body);
     }
   }
 
-  static void showMissedCallNotification({required String senderName}) async {
+  static void  showMissedCallNotification({required String senderName}) async {
     int notificationId = Random().nextInt(1000);
     var ios = const DarwinNotificationDetails();
-    var platform = NotificationDetails(android: NotificationService.normalChannel, iOS: ios);
-    await flutterLocalNotificationsPlugin.show(
-        notificationId,
-        '📞Missed Call',
-        'You have missed call from $senderName',
-        platform,
+    var platform = NotificationDetails(
+        android: NotificationService.normalChannel, iOS: ios);
+    await flutterLocalNotificationsPlugin.show(notificationId, '📞Missed Call',
+        'You have missed call from $senderName', platform,
         payload: 'missedCall');
-  }}
-
+  }
+}

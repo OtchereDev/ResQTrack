@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +21,7 @@ import 'package:resq_track/Provider/Report/report_provider.dart';
 import 'package:resq_track/Provider/Responder/responder_provider.dart';
 import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Provider/Util/util_provider.dart';
+import 'package:resq_track/Responder/Emergency/test_modal_call.dart';
 import 'package:resq_track/Responder/Learn/learn_page.dart';
 import 'package:resq_track/Services/Firbase/request_api.dart';
 import 'package:resq_track/Services/fcm/notification.dart';
@@ -86,7 +88,7 @@ class MyApp extends StatelessWidget {
           ],
           builder: (context, widget) {
             PushNotificationService().setupInteractedMessage(context);
-            return MaterialApp(
+            return GetMaterialApp(
               title: 'Flutter Demo',
               navigatorKey: naviKey,
               navigatorObservers: [BotToastNavigatorObserver()],
@@ -104,13 +106,9 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> _backgroundHandler(RemoteMessage message) async {
-  debugPrint("-------------------$message-----------------");
-
-  // naviKey.currentState!.pushReplacement(MaterialPageRoute(builder: (context)=>MapHomePage()));
-
   if (message.data['type'] == 'call') {
     Map<String, dynamic> bodyMap = jsonDecode(message.data['body']);
-    debugPrint("-------------------$bodyMap-----------------");
+    debugPrint("---------BK----------$bodyMap-----------------");
     // await CacheHelper.saveData(
     //     key: 'terminateIncomingCallData', value: jsonEncode(bodyMap));
   }

@@ -3,10 +3,14 @@ import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:resq_track/Core/app_constants.dart';
+import 'package:resq_track/Model/Response/call_model.dart';
+import 'package:resq_track/Provider/Call/call_provider.dart';
 
 class AgoraMyApp extends StatefulWidget {
-  const AgoraMyApp({Key? key}) : super(key: key);
+  final CallModel callModel;
+  const AgoraMyApp({Key? key, required this.callModel}) : super(key: key);
 
   @override
   State<AgoraMyApp> createState() => _AgoraMyAppState();
@@ -103,14 +107,17 @@ class _AgoraMyAppState extends State<AgoraMyApp> {
   void _onSwitchCamera() {
     _engine.switchCamera();
   }
-
+// 67056884a5a217b66542510f
   // End call
   void _onCallEnd(BuildContext context) {
+      var callProvider = Provider.of<CallProvider>(context, listen: false);
+    _engine.leaveChannel();
+    _engine.release();
+    callProvider.performEndCall(widget.callModel);
     _dispose();
     Navigator.pop(context);
   }
 
-  // Create UI with local view and remote view
   @override
   Widget build(BuildContext context) {
     return Scaffold(

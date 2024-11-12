@@ -31,8 +31,6 @@ class ResponderEmergencyDetails extends StatefulWidget {
 class _ResponderEmergencyDetailsState extends State<ResponderEmergencyDetails> {
   @override
   void initState() {
-    // TODO: implement initState
-    // print("----Init---------------${widget.emergencyData['emergency_id']}===============");
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ResponderProvider>(context, listen: false)

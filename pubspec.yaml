@@ -68,6 +68,10 @@ dependencies:
   speech_to_text: ^7.0.0
   firebase_database: ^11.1.4
   youtube_player_flutter: ^9.1.1
+  googleapis_auth: ^1.6.0
+  googleapis:
+  get: ^4.6.6
+
   # agora_chat_sdk: ^1.2.0
 
 

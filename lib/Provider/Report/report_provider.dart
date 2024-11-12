@@ -68,7 +68,7 @@ class ReportProvider extends ChangeNotifier {
     bool isSuccess = false;
     // setLoading(true);
     await emergencyServices.createReport(context, data).then((res) {
-      print("----------Response--------${res['data']['data']}");
+      // print("----------Response--------${res['data']['data']}");
 
       setLoading(false);
       if (res['status'] == true) {
@@ -102,7 +102,7 @@ class ReportProvider extends ChangeNotifier {
     Map<String, dynamic> body = {"photos": files};
 
     await emergencyServices.uploadEmergencyPhoto(context, body).then((res) {
-      print("----------------$res---------------");
+      // print("----------------$res---------------");
       // setLoading(false);
       if (res['status'] == true) {
         isSuccess = List<String>.from(res['data']['data']['urls']);

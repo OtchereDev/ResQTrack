@@ -112,9 +112,6 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
           current.currentPosition!.longitude,
         );
 
-        // print("-----------------------$currentLocation---------------==${widget.latLng}===================================");
-
-        // Move the camera to the user's current location whenever it updates
         if (mapController != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             mapController?.animateCamera(
@@ -142,7 +139,7 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
                 Marker(
                   markerId: MarkerId('destination'),
                   position: widget.latLng!,
-                  icon: destinationIcon ??
+                  icon: 
                       BitmapDescriptor
                           .defaultMarker, // Use custom icon or default
                 ),

@@ -128,7 +128,6 @@ class ProfileService with AuthBaseRepository implements ProfileRepository {
 
   Future replyChat(context, data) async {
   dynamic responseMap = {"status": false, "message": "", "data": null};
-  print("-----------------$data-------------");
     await post(
       context,
       url: "$kBaseUrl/chat/message",

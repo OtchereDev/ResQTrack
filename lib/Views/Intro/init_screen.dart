@@ -106,12 +106,11 @@ class _InitScreenState extends State<InitScreen> {
     bool isAuthenticated = await SharedPrefManager().isAuthenticated();
     bool getStarted = await SharedPrefManager().getGetstarted();
     bool isResponder = await SharedPrefManager().getUserType();
-    String? token = await SharedPrefManager().getPushNotificationToken();
-    // Provider.of<SetupProvider>(context, listen: false).initFcm(context);
+    // String? token = await SharedPrefManager().getPushNotificationToken();
+    Provider.of<SetupProvider>(context, listen: false).updateFcmToken();
 
     await Utils.handlePermissions();
 
-    print("--------------$token");
     if (isAuthenticated) {
       if (isResponder) {
         Future.delayed(const Duration(seconds: 3), () {

@@ -99,9 +99,7 @@ class ResponderService with AuthBaseRepository {
       url: "$kBaseUrl/emergency",
     ).then((response) {
       if (response != null) {
-        print("----------------${response.body}");
         var dataResponse = json.decode(response.body);
-        print(response.statusCode);
         if (response.statusCode == 200) {
           responseMap['status'] = true;
           responseMap['message'] = dataResponse['message'];
@@ -125,7 +123,6 @@ class ResponderService with AuthBaseRepository {
       url: "$kBaseUrl/guide",
     ).then((response) {
       if (response != null) {
-        print("----------------${response.body}");
         var dataResponse = json.decode(response.body);
         print(response.statusCode);
         if (response.statusCode == 200) {

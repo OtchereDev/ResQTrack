@@ -1,15 +1,12 @@
-import 'dart:convert';
-// import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:resq_track/Core/app_constants.dart';
 import 'package:resq_track/Model/Response/call_model.dart';
-import 'package:resq_track/Model/Response/fcm_payload_model.dart';
 import 'package:resq_track/Services/Firbase/call_api.dart';
+import 'package:resq_track/Services/Firbase/fcm_request.dart';
 import 'package:resq_track/Services/Firbase/home_api.dart';
 import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
-import 'package:resq_track/Services/Remote/Emergency/emergency_service.dart';
 import 'package:resq_track/Services/fcm/notification_service.dart'; // Change from Bloc to Provider
 
 // Replace Cubit with ChangeNotifier
@@ -126,22 +123,7 @@ class SetupProvider extends ChangeNotifier {
         .get()
         .then((value) async {
       if (value.exists) {
-        Map<String, dynamic> bodyMap = {
-          'type': 'call',
-          'title': 'New call',
-          'body': jsonEncode(callModel.toMap())
-        };
-        FcmPayloadModel _fcmSendData =
-            FcmPayloadModel(to: value.data()!['token'], data: bodyMap);
-        final fcmRequest = EmergencyService();
-        await fcmRequest
-            .post(context, url: 'https://fcm.googleapis.com/fcm/send', json: true, data: jsonEncode(_fcmSendData.toMap()))
-            
-            .then((value) {
-          if (value?.statusCode == 200) {
-            debugPrint('Send Notify Success ${value?.body}');
-          }
-        });
+        sendFCMNotification(context, value.data()!['token'], callModel.toMap());
       }
     }).catchError((onError) {
       fireCallLoading = false;

@@ -32,7 +32,6 @@ class EmergencyInProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     var callPro = Provider.of<SetupProvider>(context, listen: false);
     var loc = Provider.of<LocationProvider>(context, listen: false);
-                var res = Provider.of<ResponderProvider>(context);
 
     return Scaffold(
       body: StreamBuilder<dynamic>(
@@ -64,13 +63,13 @@ class EmergencyInProgress extends StatelessWidget {
                 }
               });
               return Consumer<ProfileProvider>(builder: (context, profile, _) {
+                var res = Provider.of<ResponderProvider>(context);
                 var user = profile.currentUserProfile;
-                 res.calculateETA(
-        context,
-        "${locationData['latitude']},${locationData['longitude']}",
-        "${loc.currentPosition?.latitude},${loc.currentPosition?.longitude}");
+                res.calculateETA(
+                    context,
+                    "${locationData['latitude']},${locationData['longitude']}",
+                    "${loc.currentPosition?.latitude},${loc.currentPosition?.longitude}");
 
- 
                 return Stack(
                   children: [
                     MapScreenWidthCordinate(
@@ -108,7 +107,7 @@ class EmergencyInProgress extends StatelessWidget {
                                 decoration: BoxDecoration(
                                     color: AppColors.YELLOW,
                                     borderRadius: BorderRadius.circular(12)),
-                                child:  Text(
+                                child: Text(
                                   "${res.travelTimeText ?? "0 Mins"}",
                                   style: TextStyle(
                                       fontSize: 18,
@@ -134,8 +133,6 @@ class EmergencyInProgress extends StatelessWidget {
                                     true,
                                     hint: 'Chat with responders....',
                                     onTap: () {
-
-                                      // print("----------${locationData['userId']}");
                                       AppNavigationHelper.navigateToWidget(
                                           context,
                                           UserChatScreen(
@@ -177,7 +174,7 @@ class EmergencyInProgress extends StatelessWidget {
                                             .then((val) {
                                           AppNavigationHelper.navigateToWidget(
                                               context,
-                                              const AgoraMyApp()); //CallScreen(isReceiver: false, callModel: callModel));
+                                               AgoraMyApp(callModel: callModel,)); //CallScreen(isReceiver: false, callModel: callModel));
                                         });
                                       },
                                       child: CircleAvatar(

@@ -20,7 +20,6 @@ class MapHomePage extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       reportID = await SharedPrefManager().getActiveEmergency();
     });
-    print("----Report ID---------$reportID------------------");
     return Consumer<ProfileProvider>(builder: (context, profile, _) {
       return StreamBuilder<dynamic>(
           stream: RequestApi().filterEmergencyById(

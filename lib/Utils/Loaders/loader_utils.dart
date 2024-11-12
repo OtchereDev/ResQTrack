@@ -10,7 +10,7 @@ class LoadingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Container(
-      height: Utils.screenHeight(context),
+      height: Utils.screenHeight(context) - 240,
       width: Utils.screenWidth(context),
       color: AppColors.WHITE,
       child: Center(child: Padding(

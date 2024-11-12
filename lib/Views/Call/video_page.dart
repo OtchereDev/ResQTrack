@@ -94,7 +94,6 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("-------Remote ID------$_remoteUid----------------------------------");
     return Consumer<CallProvider>(
       builder: (BuildContext context, state, _) {
         _handleCallStatus(state);

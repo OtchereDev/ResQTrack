@@ -17,7 +17,6 @@ class RequestApi {
   }
 
 Stream<dynamic> filterEmergencyById(String emergencyId, String userName) {
-  debugPrint("-------$emergencyId-------------$userName-----------");
   CollectionReference emergencies =
       FirebaseFirestore.instance.collection(activeEmergency);
 
