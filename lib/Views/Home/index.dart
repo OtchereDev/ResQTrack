@@ -5,6 +5,7 @@ import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
+import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Views/Account/account_page.dart';
 import 'package:resq_track/Views/Home/Sos/sos_page.dart';
 import 'package:resq_track/Views/Home/RecentPage/recents.dart';
@@ -34,6 +35,8 @@ class _BaseHomePageState extends State<BaseHomePage> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<LocationProvider>().getCurrentLocation();
       context.read<ProfileProvider>().getUser(context);
+      Provider.of<SetupProvider>(context, listen: false).updateFcmToken();
+
       
     });
     super.initState();

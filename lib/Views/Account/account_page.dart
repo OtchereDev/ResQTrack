@@ -12,6 +12,7 @@ import 'package:resq_track/Views/Account/Feedback/feedback_page.dart';
 import 'package:resq_track/Views/Account/Profile/emergency_contact.dart';
 import 'package:resq_track/Views/Account/Profile/medical_record.dart';
 import 'package:resq_track/Views/Account/Profile/personal_info.dart';
+import 'package:resq_track/Views/Chat/chat_gpt.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
@@ -130,9 +131,9 @@ class AccountPage extends StatelessWidget {
                                     AppNavigationHelper.navigateToWidget(context, FirstAidinstructionPage());
                                   }),
                               accountTile(
-                                  title: 'Emergency Preparedness Tips',
+                                  title: 'First Aid Tips',
                                   onTap: () {
-                                    AppNavigationHelper.navigateToWidget(context, FirstAidinstructionPage());
+                                    AppNavigationHelper.navigateToWidget(context, ChatPage());
             
                                   }),
                               accountTile(

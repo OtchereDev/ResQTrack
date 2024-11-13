@@ -62,7 +62,7 @@ mixin AuthBaseRepository {
     String encodedData = data == null ? "{}" : jsonEncode(data);
     http.Response? response;
 
-    print(headers);
+    print(url);
 
     try {
       

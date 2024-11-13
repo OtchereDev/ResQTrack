@@ -37,7 +37,7 @@ class LocationProvider with ChangeNotifier {
                   ))
         .listen((Position position) {
       _currentPosition = position;
-      NotificationUtils.showToast(context,message: _currentPosition?.latitude.toString() ??"N/A");
+      // NotificationUtils.showToast(context,message: _currentPosition?.latitude.toString() ??"N/A");
       notifyListeners();
     });
   }

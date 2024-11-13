@@ -107,11 +107,12 @@ class _InitScreenState extends State<InitScreen> {
     bool getStarted = await SharedPrefManager().getGetstarted();
     bool isResponder = await SharedPrefManager().getUserType();
     // String? token = await SharedPrefManager().getPushNotificationToken();
-    Provider.of<SetupProvider>(context, listen: false).updateFcmToken();
 
     await Utils.handlePermissions();
 
     if (isAuthenticated) {
+      Provider.of<SetupProvider>(context, listen: false).updateFcmToken();
+
       if (isResponder) {
         Future.delayed(const Duration(seconds: 3), () {
           return AppNavigationHelper.setRootOldWidget(

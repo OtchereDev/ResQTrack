@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Provider/Call/new_call.dart';
 import 'package:resq_track/Provider/Profile/profile_provider.dart';
+import 'package:resq_track/Provider/Setup/setup_provider.dart';
 import 'package:resq_track/Responder/Account/responder_account_page.dart';
 import 'package:resq_track/Responder/Home/responder_homee_page.dart';
 import 'package:resq_track/Responder/Account/responder_profile_info.dart';
@@ -32,6 +33,8 @@ class _ResponderBaseHomePageState extends State<ResponderBaseHomePage> {
     _selectedIndex = widget.initialIdex ?? 0;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<ProfileProvider>().getUser(context);
+      Provider.of<SetupProvider>(context, listen: false).updateFcmToken();
+
     });
     super.initState();
   }

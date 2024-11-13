@@ -37,11 +37,11 @@ class AuthRemoteService with AuthBaseRepository implements AuthRepository {
   }
 
   @override
-  Future<dynamic> signin(context, data,bool isResponder) async {
+  Future<dynamic> signin(context, data, bool isResponder) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
     await post(
       context,
-      url: "$kBaseUrl/auth/${isResponder ? 'login-responder':'login'}",
+      url: "$kBaseUrl/auth/${isResponder ? 'login-responder' : 'login'}",
       data: jsonEncode(data),
     ).then((response) {
       if (response != null) {
@@ -62,9 +62,11 @@ class AuthRemoteService with AuthBaseRepository implements AuthRepository {
   @override
   Future<dynamic> signup(context, data, isResponder) async {
     dynamic responseMap = {"status": false, "message": "", "data": null};
+
+    print(data);
     await post(
       context,
-      url: "$kBaseUrl/users/create",
+      url: "$kBaseUrl/${isResponder ? "responders/create" : "users/create"}",
       data: jsonEncode(data),
     ).then((response) {
       if (response != null) {
@@ -89,10 +91,10 @@ class AuthRemoteService with AuthBaseRepository implements AuthRepository {
     if (resp != null) responseMap = json.decode(resp.body);
     return responseMap;
   }
-  
+
   @override
   Future sendOtp(context, data) async {
-   dynamic responseMap = {"status": false, "message": "", "data": null};
+    dynamic responseMap = {"status": false, "message": "", "data": null};
     await post(
       context,
       url: "$kBaseUrl/users/create",
@@ -113,10 +115,10 @@ class AuthRemoteService with AuthBaseRepository implements AuthRepository {
     });
     return responseMap;
   }
-  
+
   @override
   Future verifyOtp(context, data) async {
-   dynamic responseMap = {"status": false, "message": "", "data": null};
+    dynamic responseMap = {"status": false, "message": "", "data": null};
     await post(
       context,
       url: "$kBaseUrl/users/create",

@@ -7,6 +7,7 @@ import 'package:resq_track/Components/passwordField.dart';
 import 'package:resq_track/Components/textformfield.dart';
 import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Provider/Auth/login_provider.dart';
+import 'package:resq_track/Services/Local/shared_prefs_manager.dart';
 import 'package:resq_track/Views/Auth/ResetPasssword/forgot_password.dart';
 import 'package:resq_track/Views/Home/index.dart';
 import 'package:resq_track/Views/MapViews/map_view.dart';
@@ -85,6 +86,7 @@ class LoginPage extends StatelessWidget {
                     title: 'Login',
                     onTap: () {
                       if (formKey.currentState?.validate() == true) {
+                        SharedPrefManager().setUserType(false);
                         auth
                             .performLogin(context,
                                 email: emailcontroller.text.trim(),

@@ -5,9 +5,11 @@ import 'package:resq_track/AppTheme/app_config.dart';
 import 'package:resq_track/Components/alert_dailog.dart';
 import 'package:resq_track/Components/phoneNumberText.dart';
 import 'package:resq_track/Components/textformfield.dart';
+import 'package:resq_track/Core/Helpers/navigation_helper.dart';
 import 'package:resq_track/Model/Request/user_request.dart';
 import 'package:resq_track/Provider/Auth/login_provider.dart';
 import 'package:resq_track/Utils/formatters.dart';
+import 'package:resq_track/Views/Auth/Login/login.dart';
 import 'package:resq_track/Widgets/animate_icon.dart';
 import 'package:resq_track/Widgets/custom_buttom.dart';
 import 'package:resq_track/Widgets/custom_outlined_button.dart';
@@ -137,6 +139,7 @@ class SignUpEmergency extends StatelessWidget {
                                             title: 'Register successful',
                                             message: "Done",
                                             isSuccess: true);
+                                            AppNavigationHelper.setRootOldWidget(context, LoginPage());
                                       }
                                     });
                                   }

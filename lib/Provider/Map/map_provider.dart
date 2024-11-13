@@ -11,7 +11,8 @@ import 'package:resq_track/Core/app_constants.dart';
 import 'package:resq_track/Provider/Location/location_provider.dart';
 
 class MapProvider with ChangeNotifier {
-  Map<PolylineId, Polyline> polylines = {};
+  Map<PolylineId, Polyline> _polylines = {};
+  Map<PolylineId, Polyline>get polylines =>_polylines;
 
   BitmapDescriptor? ambulanceIcon;
   BitmapDescriptor? hospitalIcon;
@@ -40,7 +41,7 @@ class MapProvider with ChangeNotifier {
 
     if (locationProvider.currentPosition != null) {
       final String url =
-          'https://maps.googleapis.com/maps/api/directions/json?origin=${latitude},${longitude}&destination=${locationProvider.currentPosition!.latitude},${locationProvider.currentPosition!.longitude}&key=$kGoogleApiKey';
+          'https://maps.googleapis.com/maps/api/directions/json?origin=5.632262,-0.15229&destination=5.6311426997256495,-0.15700468372677176&mode=driving&departure_time=now&key=AIzaSyDDG9vbTjy9bmYNRZjiJqCGiGBpXAkDzwI';
 
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -104,7 +105,7 @@ class MapProvider with ChangeNotifier {
       width: 5,
     );
 
-    polylines[id] = polyline;
+    _polylines[id] = polyline;
     notifyListeners();
   }
 }

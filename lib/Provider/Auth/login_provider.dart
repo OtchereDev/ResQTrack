@@ -19,9 +19,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> signUp(context, UserRequest user) async {
+  Future<bool> signUp(context,  user) async {
     bool? isResponder = await SharedPrefManager().getUserType();
 
+  print("---------$isResponder--------------");
     setLoadingPage(true);
     bool isSuccess = false;
     await authService

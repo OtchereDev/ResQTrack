@@ -23,15 +23,36 @@ class SetupProvider extends ChangeNotifier {
   void updateFcmToken() {
     FirebaseMessaging.instance.getToken().then((token) async {
       var user = await SharedPrefManager().getUser();
-      // UserFcmTokenModel tokenModel = UserFcmTokenModel(token: token!, uId: uId);
-      FirebaseFirestore.instance
-          .collection(tokensCollection)
-          .doc(user?.id ?? "")
-          .set({"token": token, "userId": user?.id}).then((value) {
-        debugPrint('User Fcm Token Updated $token');
-      }).catchError((onError) {
-        debugPrint(onError.toString());
-      });
+      final userId = user?.id ?? "";
+
+      if (userId.isNotEmpty) {
+        final docRef =
+            FirebaseFirestore.instance.collection(tokensCollection).doc(userId);
+
+        docRef.get().then((docSnapshot) {
+          if (!docSnapshot.exists) {
+            // Insert new document if it doesn't exist
+            docRef.set({
+              "token": token,
+              "userId": userId,
+            }).then((value) {
+              debugPrint('User FCM Token Inserted: $token');
+            }).catchError((error) {
+              debugPrint("Error inserting token: $error");
+            });
+          } else {
+            docRef.update({
+              "token": token,
+              "userId": userId,
+            });
+            debugPrint("Token already exists for user $userId");
+          }
+        }).catchError((error) {
+          debugPrint("Error checking document existence: $error");
+        });
+      } else {
+        debugPrint("User ID is empty. Token not saved.");
+      }
     });
   }
 
@@ -84,7 +105,7 @@ class SetupProvider extends ChangeNotifier {
     await _callApi.generateCallToken(context).then((value) {
       callModel.token = agoraTestToken;
       callModel.channelName = agoraTestChannelName;
-      postCallToFirestore(context,callModel: callModel);
+      postCallToFirestore(context, callModel: callModel);
     }).catchError((onError) {
       callModel.token = agoraTestToken;
       callModel.channelName = agoraTestChannelName;
@@ -96,13 +117,13 @@ class SetupProvider extends ChangeNotifier {
   }
 
   // Post call details to Firestore
-  void postCallToFirestore(context,{required CallModel callModel}) {
+  void postCallToFirestore(context, {required CallModel callModel}) {
     _callApi.postCallToFirestore(callModel: callModel).then((value) {
       _callApi
           .updateUserBusyStatusFirestore(callModel: callModel, busy: true)
           .then((value) {
         fireCallLoading = false;
-        sendNotificationForIncomingCall(context,callModel: callModel);
+        sendNotificationForIncomingCall(context, callModel: callModel);
         notifyListeners(); // Notify state change
       }).catchError((onError) {
         fireCallLoading = false;

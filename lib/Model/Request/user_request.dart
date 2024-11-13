@@ -59,3 +59,38 @@ class EmergencyContact {
         "phoneNumber": phoneNumber,
     };
 }
+
+
+
+
+class ResponderRequest {
+    String? name;
+    String? email;
+    String? phoneNumber;
+    String? password;
+    String? type;
+
+    ResponderRequest({
+        this.name,
+        this.email,
+        this.phoneNumber,
+        this.password,
+        this.type
+    });
+
+    factory ResponderRequest.fromJson(Map<String, dynamic> json) => ResponderRequest(
+        name: json["name"],
+        email: json["email"],
+        phoneNumber: json["phoneNumber"],
+        password: json["password"],
+        type: json['type'],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "name": name,
+        "email": email,
+        "phoneNumber": phoneNumber,
+        "password": password,
+        "type":type,
+    };
+}
