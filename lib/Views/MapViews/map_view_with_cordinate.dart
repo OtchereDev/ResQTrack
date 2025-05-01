@@ -56,45 +56,36 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
   Future<void> _loadCustomIcons() async {
     currentLocationIcon = await getResizedMarkerIcon(
       'assets/images/ambulance.png',
-      width: 100, // Adjust width as needed
+      width: 100, 
     );
 
     destinationIcon = await getResizedMarkerIcon(
       'assets/images/ambulance.png',
-      width: 100, // Adjust width as needed
+      width: 100, 
     );
 
-    setState(() {}); // Trigger rebuild to show icons when loaded
+    setState(() {}); 
   }
 
   Future<BitmapDescriptor> getResizedMarkerIcon(String assetPath,
       {int width = 100}) async {
-    // Load image from assets as bytes
     ByteData data = await rootBundle.load(assetPath);
     Uint8List bytes = data.buffer.asUint8List();
-
-    // Decode image and resize it
     img.Image? image = img.decodeImage(bytes);
     img.Image resized = img.copyResize(image!, width: width);
-
-    // Encode resized image to bytes
     Uint8List resizedBytes = Uint8List.fromList(img.encodePng(resized));
-
-    // Create a BitmapDescriptor from resized bytes
     return BitmapDescriptor.fromBytes(resizedBytes);
   }
 
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-          // Initialize the map with the route
           Provider.of<MapProvider>(context, listen: false)
               .fetchPolylinePoints(context,
                   latitude: widget.latLng!.latitude,
                   longitude: widget.latLng!.longitude)
               .then((coordinates) {
             if (coordinates != null) {
-              // Generate polyline from the fetched coordinates
               Provider.of<MapProvider>(context, listen: false)
                   .generatePolyLineFromPoints(coordinates);
             }
@@ -104,7 +95,7 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
       builder: (context, mapProvider, child) {
         var current = Provider.of<LocationProvider>(context, listen: false);
         if (widget.latLng == null) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         final LatLng currentLocation = LatLng(
@@ -130,14 +121,14 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
               ),
               markers: {
                 Marker(
-                  markerId: MarkerId('currentLocation'),
+                  markerId: const MarkerId('currentLocation'),
                   position: currentLocation,
                   icon: currentLocationIcon ??
                       BitmapDescriptor
                           .defaultMarker, // Use custom icon or default
                 ),
                 Marker(
-                  markerId: MarkerId('destination'),
+                  markerId: const MarkerId('destination'),
                   position: widget.latLng!,
                   icon: 
                       BitmapDescriptor
@@ -163,11 +154,11 @@ class _MapScreenWidthCordinateState extends State<MapScreenWidthCordinate> {
                               context, resp.emergencyRes.emergency?.id ?? "");
 
                           AppNavigationHelper.setRootOldWidget(
-                              context, ResponderBaseHomePage());
+                              context, const ResponderBaseHomePage());
                         },
                       ),
                     ))
-                : SizedBox.shrink()
+                : const SizedBox.shrink()
           ],
         );
       },

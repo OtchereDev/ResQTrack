@@ -8,13 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:resq_track/AppTheme/app_config.dart';
-import 'package:resq_track/Components/alert_dailog.dart';
 import 'package:resq_track/Core/app_constants.dart';
 import 'package:resq_track/Model/Response/call_model.dart';
-import 'package:resq_track/Provider/Call/new_call.dart';
 import 'package:resq_track/Services/fcm/notification_service.dart';
-import 'package:resq_track/Utils/utils.dart';
 import 'package:resq_track/Widgets/call_widget.dart';
 import '../Local/shared_prefs_manager.dart';
 

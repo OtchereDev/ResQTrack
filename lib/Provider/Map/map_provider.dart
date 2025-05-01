@@ -41,11 +41,15 @@ class MapProvider with ChangeNotifier {
 
     if (locationProvider.currentPosition != null) {
       final String url =
-          'https://maps.googleapis.com/maps/api/directions/json?origin=5.632262,-0.15229&destination=5.6311426997256495,-0.15700468372677176&mode=driving&departure_time=now&key=AIzaSyDDG9vbTjy9bmYNRZjiJqCGiGBpXAkDzwI';
+          'https://maps.googleapis.com/maps/api/directions/json?origin=${latitude},${longitude}&destination=${locationProvider.currentPosition!.latitude},${locationProvider.currentPosition!.longitude}&key=$kGoogleApiKey';
 
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
+
+        print("---------------------------------------------------------------------");
+        
+        print("---------------------------------------------------------------------");
 
         if ((data['routes'] as List).isNotEmpty) {
           final String polylineString = data['routes'][0]['overview_polyline']['points'];
